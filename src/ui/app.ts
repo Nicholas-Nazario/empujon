@@ -1,4 +1,4 @@
-import { beginnerAction } from '../ai.ts';
+import { beginnerAction, type Difficulty } from '../ai.ts';
 import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
 import { createGame, place, chooseUpgrade, defaultPieceUpgraded, names, type Game, type Mode } from '../game.ts';
@@ -17,8 +17,9 @@ export function startApp(root: HTMLElement): void {
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
-  let computer = false;
-  let pendingComputer = false;
+  let computer: Difficulty | null = null;
+  let pendingComputer: Difficulty | null = null;
+  let computerWorker: Worker | undefined;
   let computerTimer: ReturnType<typeof setTimeout> | undefined;
 
   function playTransition(before: Game, after: Game): void {
@@ -26,20 +27,29 @@ export function startApp(root: HTMLElement): void {
   }
 
   function cancelComputer(): void {
+    computerWorker?.terminate();
+    computerWorker = undefined;
     clearTimeout(computerTimer);
     computerTimer = undefined;
   }
 
   function scheduleComputer(): void {
-    if (online || !computer || actingPlayer(game) !== 1 || computerTimer !== undefined) return;
+    if (online || !computer || actingPlayer(game) !== 1 || computerTimer !== undefined || computerWorker) return;
     computerTimer = setTimeout(() => {
       computerTimer = undefined;
-      const action = beginnerAction(game);
-      if (!action) return;
-      const next = applyAction(game, action);
-      playTransition(game, next);
-      game = next;
-      render();
+      computerWorker = new Worker(new URL('../ai.worker.ts', import.meta.url), { type: 'module' });
+      const finishComputer = (action: Action | null) => {
+        computerWorker?.terminate();
+        computerWorker = undefined;
+        if (!action) return;
+        const next = applyAction(game, action);
+        playTransition(game, next);
+        game = next;
+        render();
+      };
+      computerWorker.onmessage = (event: MessageEvent<Action | null>) => finishComputer(event.data);
+      computerWorker.onerror = () => finishComputer(beginnerAction(game));
+      computerWorker.postMessage({ game, difficulty: computer });
     }, 400);
   }
 
@@ -74,8 +84,8 @@ export function startApp(root: HTMLElement): void {
   function error(error: unknown) { onlineError = error instanceof Error ? error.message : 'Unable to connect.'; onlineStatus.textContent = onlineError; }
   function connect(state: OnlineState & Seat) {
     cancelComputer();
-    computer = false;
-    pendingComputer = false;
+    computer = null;
+    pendingComputer = null;
     seat = { token: state.token, player: state.player };
     localStorage.setItem(`empujon:${state.code}`, JSON.stringify(seat));
     window.history.replaceState(null, '', `?game=${state.code}`);

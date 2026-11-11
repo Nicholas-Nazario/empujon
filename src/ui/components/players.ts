@@ -1,3 +1,4 @@
+import { difficultyNames, type Difficulty } from '../../ai.ts';
 import { renderIcon } from '../icons.ts';
 import { names, type Game, type Player } from '../../game.ts';
 import { renderPiece } from './piece.ts';
@@ -12,7 +13,7 @@ function renderPiecePicker(baseCount: number, upgradedCount: number, selectedUpg
     </div>`;
 }
 
-function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean, computer: boolean): string {
+function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null): string {
   const supply = game.pools[owner];
   const onBoard = game.board.filter(piece => piece?.owner === owner).length;
   const upgradedInSupply = supply.filter(piece => piece.upgraded).length;
@@ -30,7 +31,7 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
     <section class="player-card ${isActive ? 'current' : ''} color-${owner}">
       <div class="player-title">
         ${renderPiece(owner)}
-        <div><span class="tiny-label">${computer ? (owner === 0 ? 'YOU' : 'BEGINNER AI') : `PLAYER ${owner + 1}`} </span><h3>${names[owner]}</h3></div>
+        <div><span class="tiny-label">${computer ? (owner === 0 ? 'YOU' : `${difficultyNames[computer].toUpperCase()} AI`) : `PLAYER ${owner + 1}`} </span><h3>${names[owner]}</h3></div>
         ${badge}
       </div>
       <div class="player-stats"><span>On the board</span><strong>${onBoard}<span> / 8</span></strong></div>
@@ -42,6 +43,6 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
     </section>`;
 }
 
-export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean, computer = false): string {
+export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null = null): string {
   return ([0, 1] as const).map(owner => renderPlayer(game, owner, activePlayer, selectedUpgraded, computer)).join('');
 }

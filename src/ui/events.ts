@@ -1,3 +1,4 @@
+import type { Difficulty } from '../ai.ts';
 import type { Mode } from '../game.ts';
 import type { Layout } from './layout.ts';
 
@@ -5,7 +6,7 @@ export type GameActions = {
   placePiece(index: number): void;
   chooseUpgrade(option: number): void;
   selectPiece(upgraded: boolean): void;
-  requestNewGame(mode?: Mode, computer?: boolean): void;
+  requestNewGame(mode?: Mode, computer?: Difficulty | null): void;
   undoMove(): void;
   toggleSound(): void;
   previewChoice(option: number | null): void;
@@ -51,7 +52,7 @@ export function bindGameEvents(layout: Layout, actions: GameActions): void {
     });
   }
   for (const button of layout.opponentButtons) {
-    button.addEventListener('click', () => actions.requestNewGame(undefined, button.dataset.opponent === 'beginner'));
+    button.addEventListener('click', () => actions.requestNewGame(undefined, button.dataset.opponent === 'local' ? null : button.dataset.opponent as Difficulty));
   }
   layout.restartButton.addEventListener('click', () => actions.requestNewGame());
   layout.undoButton.addEventListener('click', actions.undoMove);

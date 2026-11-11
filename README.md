@@ -2,7 +2,7 @@
 
 A two-player abstract strategy game inspired by the mechanics of Scott Brady’s Gekitai and Gekitai 2, with original presentation.
 
-Play together on one device, invite a friend online, or choose **Beginner** to play the computer. Choose **Classic** or **Upgrade**, place pieces, and push neighboring pieces to change the board.
+Play together on one device, invite a friend online, or choose a **computer difficulty** to play the computer. Choose **Classic** or **Upgrade**, place pieces, and push neighboring pieces to change the board.
 
 ## License and branding
 
@@ -134,14 +134,18 @@ node bin/empujon.mjs --json          # JSON Lines API for agent processes
 
 The CLI reuses the website's TypeScript rules engine. For AI integrations, every response exposes the full state, the actual decision owner, and all legal actions. TypeScript agents can also import the engine directly without subprocess overhead. See [CLI and AI interface](docs/cli.md) for commands, protocol details, and a Python self-play example.
 
-## Beginner opponent
+## Computer opponents
 
-Select **Beginner** under **Play against**. You play Terracotta and move
-first; the computer plays Indigo. Beginner takes an immediate winning move when
-available and otherwise evaluates the resulting board: keeping pieces in play,
-building open pairs, earning upgrades, and limiting the opponent’s progress. It
-varies among similarly useful moves, without looking ahead to your reply. Undo takes back your placement and the computer reply together.
-Switching opponents starts a new game, with confirmation if play has begun.
-Beginner supports Classic and Upgrade, including both piece types and
-choices of upgrade rewards evaluated by the same progress criteria. Stronger difficulties are future work. The policy lives in `src/ai.ts` and reuses the shared
-engine and legal actions.
+Select **Beginner**, **Intermediate**, or **Advanced** under **Who’s across the board?**.
+You play Terracotta and move first; the computer plays Indigo. All difficulties
+support Classic and Upgrade, including both piece types and upgrade reward choices.
+
+- **Beginner** takes immediate wins and varies among promising moves, valuing board presence, open pairs, and upgrades.
+- **Intermediate** looks ahead to your reply to defend against immediate threats.
+- **Advanced** searches up to one further placement to plan ahead.
+
+The stronger difficulties use bounded minimax search and keep the last fully
+completed search when their work limit is reached. Search runs in a worker to
+keep the board responsive. Undo takes back your placement and the computer reply
+together. Switching opponents starts a new game, with confirmation if play has begun.
+The policies live in `src/ai.ts` and reuse the shared engine and legal actions.

@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { beginnerAction } from '../src/ai.ts';
+import { beginnerAction, computerAction } from '../src/ai.ts';
 import { applyAction, legalActions } from '../src/actions.ts';
 import { createGame } from '../src/game.ts';
 
@@ -161,3 +161,45 @@ test('Beginner chooses the reward that upgrades more base pieces', () => {
     assert.equal(next.board.filter(piece => piece?.owner === 1 && piece.upgraded).length, 2);
   }
 });
+
+for (const difficulty of ['intermediate', 'advanced'] as const) {
+  test(`${difficulty} prevents an immediate winning reply in either mode`, () => {
+    for (const mode of ['classic', 'upgrade'] as const) {
+      const game = createGame(mode);
+      for (const index of [0, 1, 8]) {
+        game.board[index] = { ...game.pools[1].pop()!, upgraded: mode === 'upgrade' };
+      }
+      if (mode === 'upgrade') { game.pools[0][0].upgraded = true; game.pools[1][0].upgraded = true; }
+      const original = structuredClone(game);
+      const action = computerAction(game, difficulty);
+      assert.ok(action);
+      const next = applyAction(game, action);
+      assert.notEqual(next.winner, 1);
+      for (const reply of legalActions(next)) assert.notEqual(applyAction(next, reply).winner, 1);
+      assert.deepEqual(game, original);
+    }
+  });
+
+  test(`${difficulty} takes a winning push and stops at terminal states`, () => {
+    const game = createGame('classic');
+    for (const index of [0, 1, 8]) game.board[index] = game.pools[0].pop()!;
+    const action = computerAction(game, difficulty);
+    assert.ok(action);
+    const next = applyAction(game, action);
+    assert.equal(next.winner, 0);
+    assert.equal(computerAction(next, difficulty), null);
+  });
+
+  test(`${difficulty} handles rewards owned by the other player`, () => {
+    const game = createGame('upgrade');
+    for (const index of [0, 1, 2, 6, 12]) game.board[index] = game.pools[1].pop()!;
+    game.choices = [{ owner: 1, kind: 'line', options: [[0, 1, 2], [0, 6, 12]] }];
+    const original = structuredClone(game);
+    const action = computerAction(game, difficulty);
+    assert.ok(action && action.type === 'choose');
+    const next = applyAction(game, action);
+    assert.equal(next.choices.length, 0);
+    assert.equal(next.pools[1].filter(piece => piece.upgraded).length, 3);
+    assert.deepEqual(game, original);
+  });
+}

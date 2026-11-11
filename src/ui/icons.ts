@@ -1,4 +1,6 @@
 import robot from '@phosphor-icons/core/assets/regular/robot.svg?raw';
+import robotDuotone from '@phosphor-icons/core/assets/duotone/robot-duotone.svg?raw';
+import robotFill from '@phosphor-icons/core/assets/fill/robot-fill.svg?raw';
 import info from '@phosphor-icons/core/assets/regular/info.svg?raw';
 import invite from '@phosphor-icons/core/assets/regular/user-plus.svg?raw';
 import classic from '@phosphor-icons/core/assets/regular/checkerboard.svg?raw';
@@ -14,7 +16,7 @@ import upgrade from '@phosphor-icons/core/assets/fill/crown-simple-fill.svg?raw'
 // Phosphor has no single-note muted variant. Keep the same note and add a
 // diagonal slash matching its regular 16-unit stroke on the 256-unit grid.
 const mutedMusic = music.replace('</svg>', '<path d="M40 40l176 176" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" /></svg>');
-const icons = { robot, info, invite, classic, island, undo, restart, music, 'music-off': mutedMusic, copy, close, online, upgrade };
+const icons = { robot, 'robot-duotone': robotDuotone, 'robot-fill': robotFill, info, invite, classic, island, undo, restart, music, 'music-off': mutedMusic, copy, close, online, upgrade };
 export type IconName = keyof typeof icons;
 
 /** Only explicitly imported SVGs are bundled; labels live on their controls. */
