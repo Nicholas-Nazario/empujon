@@ -26,3 +26,11 @@ primary_region = 'ewr'
 [[vm]]
   size = 'shared-cpu-1x'
   memory = '256mb'
+
+[env]
+  DATABASE_PATH = '/data/sessions.sqlite'
+
+[mounts]
+  source = 'game_data'
+  destination = '/data'
+  initial_size = '1gb'

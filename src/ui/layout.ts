@@ -1,3 +1,4 @@
+import onlineHtml from './templates/online.html?raw';
 import layoutHtml from './templates/layout.html?raw';
 import rulesHtml from './templates/rules.html?raw';
 import newGameHtml from './templates/new-game.html?raw';
@@ -10,7 +11,7 @@ function requireElement<T extends HTMLElement>(root: HTMLElement, selector: stri
 }
 
 export function mountLayout(root: HTMLElement) {
-  root.innerHTML = layoutHtml + rulesHtml + newGameHtml;
+  root.innerHTML = layoutHtml + rulesHtml + newGameHtml + onlineHtml;
   return {
     board: requireElement<HTMLDivElement>(root, '#board'),
     boardHeading: requireElement(root, '.board-heading'),
@@ -23,6 +24,8 @@ export function mountLayout(root: HTMLElement) {
     choices: requireElement(root, '#choices'),
     players: requireElement(root, '#players'),
     modeButtons: Array.from(root.querySelectorAll<HTMLButtonElement>('[data-mode]')),
+    opponentButtons: Array.from(root.querySelectorAll<HTMLButtonElement>('[data-opponent]')),
+    opponentNote: requireElement(root, '#opponent-note'),
     undoButton: requireElement<HTMLButtonElement>(root, '#undo'),
     soundButton: requireElement<HTMLButtonElement>(root, '#sound'),
     restartButton: requireElement<HTMLButtonElement>(root, '#restart'),

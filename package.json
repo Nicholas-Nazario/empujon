@@ -2,15 +2,18 @@
   "name": "empujon",
   "version": "0.1.0",
   "private": true,
+  "license": "SEE LICENSE IN LICENSE.md",
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1",
+    "dev": "node --experimental-strip-types server/index.ts --dev",
     "build": "tsc --noEmit && vite build",
     "preview": "vite preview --host 127.0.0.1",
     "test": "node --experimental-strip-types --test tests/*.test.ts",
-    "cli": "node --experimental-strip-types bin/empujon.mjs"
+    "cli": "node --experimental-strip-types bin/empujon.mjs",
+    "start": "node --experimental-strip-types server/index.ts"
   },
   "devDependencies": {
+    "@types/node": "^24.19.2",
     "typescript": "~5.9.3",
     "vite": "^7.2.2"
   }

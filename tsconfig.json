@@ -4,5 +4,5 @@
     "module": "ESNext", "moduleResolution": "bundler", "strict": true,
     "noEmit": true, "allowImportingTsExtensions": true, "skipLibCheck": true
   },
-  "include": ["src"]
+  "include": ["src", "server"]
 }
