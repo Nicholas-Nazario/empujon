@@ -50,7 +50,6 @@ export function startApp(root: HTMLElement): void {
   const onlineStatus = root.querySelector<HTMLElement>('#online-status')!;
   const banner = root.querySelector<HTMLElement>('#online-banner')!;
   const details = root.querySelector<HTMLElement>('#online-details')!;
-  const entry = root.querySelector<HTMLElement>('#online-entry')!;
   const setupDialog = root.querySelector<HTMLDialogElement>('#online-setup')!;
   const inviteDialog = root.querySelector<HTMLDialogElement>('#online-invite')!;
   const onlineMode = root.querySelector<HTMLSelectElement>('#online-mode')!;
@@ -142,7 +141,6 @@ export function startApp(root: HTMLElement): void {
     leaveButton.hidden = !online;
     banner.hidden = !online;
     details.hidden = !online;
-    entry.hidden = !!online;
     root.classList.toggle('is-online', !!online);
     layout.restartButton.disabled = !!online;
     for (const button of [...layout.modeButtons, ...layout.opponentButtons]) button.disabled = !!online;
@@ -154,6 +152,8 @@ export function startApp(root: HTMLElement): void {
       root.querySelector<HTMLInputElement>('#sidebar-invite-url')!.value = inviteUrl.value;
       root.querySelector('#online-code')!.textContent = online.code;
       const mine = canAct();
+      banner.classList.toggle('color-0', seat.player === 0);
+      banner.classList.toggle('color-1', seat.player === 1);
       root.querySelector('#online-seat')!.textContent = `You are ${names[seat.player]}`;
       root.querySelector('#online-rules')!.textContent = `${game.mode === 'classic' ? 'Classic' : 'Upgrade'} rules`;
       root.querySelector('#online-settings')!.textContent = online.turnSeconds ? `${online.turnSeconds} seconds per turn` : 'No turn time limit';
@@ -246,7 +246,6 @@ export function startApp(root: HTMLElement): void {
     hostButton.disabled = true;
     banner.hidden = false;
     details.hidden = false;
-    entry.hidden = true;
     root.classList.add('is-online');
     root.querySelector('#online-seat')!.textContent = 'Joining online game';
     for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #restart, #undo')) button.disabled = true;

@@ -1,35 +1,14 @@
 <header class="topbar">
   <a class="wordmark" href="./" aria-label="Empujón home">
-    empujón
+    <span>empuj<span class="accent-letter">o<span class="wordmark-accent" aria-hidden="true">´</span></span>n</span>
     <span class="brand-dot"></span>
   </a>
-  <div class="header-note">
-    <span class="live-dot"></span>
-    Two players. One board.
-  </div>
   <button class="text-button" id="rules-open">
     How to play
     <span aria-hidden="true">↗</span>
   </button>
 </header>
 <main>
-  <section class="intro">
-    <div>
-      <p class="eyebrow">A GAME OF SPACE & STRATEGY</p>
-      <h1>
-        A little push.
-        <br>
-        <span>A whole new game.</span>
-      </h1>
-      <p class="intro-copy">Make your move. Shift the balance. Find your line.</p>
-    </div>
-    <div class="intro-tag">
-      <span class="tag-symbol" aria-hidden="true">↗</span>
-      <span>
-        Simple moves.
-        <br>Surprising possibilities.</span>
-    </div>
-  </section>
   <section id="online-banner" class="online-banner" aria-label="Online game" hidden>
     <div class="online-identity">
       <span class="online-badge">◉ ONLINE GAME</span>
@@ -59,10 +38,11 @@
           <small>AN EXTRA LAYER OF STRATEGY</small>
         </button>
       </div>
-      <div class="opponent-picker" role="group" aria-label="Opponent">
-        <span class="tiny-label">PLAY AGAINST</span>
-        <button class="mode active" data-opponent="local" aria-pressed="true">Another player</button>
-        <button class="mode" data-opponent="beginner" aria-pressed="false">Beginner</button>
+      <div class="opponent-picker" role="group" aria-label="Who’s across the board?">
+        <span class="tiny-label">WHO’S ACROSS THE BOARD?</span>
+        <button class="mode active" data-opponent="local" aria-pressed="true">Pass &amp; play</button>
+        <button class="mode" data-opponent="beginner" aria-pressed="false">Beginner · CPU</button>
+        <button class="mode" id="host-online">Invite a friend <span aria-hidden="true">↗</span></button>
         <p id="opponent-note"></p>
       </div>
       <div class="goal-card">
@@ -71,11 +51,6 @@
         <div class="mini-line" aria-hidden="true">
           <span>3 in a row</span>
         </div>
-      </div>
-      <div class="online-panel" id="online-entry">
-        <span class="tiny-label">PLAY FROM ANYWHERE</span>
-        <p>Invite a friend to your own online board.</p>
-        <button class="primary-button" id="host-online">Play online with a friend</button>
       </div>
       <div id="online-details" hidden>
         <section class="session-section" aria-labelledby="online-rules-label">
@@ -118,7 +93,17 @@
           <span>E</span>
           <span>F</span>
         </div>
-        <div class="board" id="board" role="group" aria-label="Six by six game board"></div>
+        <div class="board-grid">
+          <div class="row-coordinates" aria-hidden="true">
+            <span>1</span>
+            <span>2</span>
+            <span>3</span>
+            <span>4</span>
+            <span>5</span>
+            <span>6</span>
+          </div>
+          <div class="board" id="board" role="group" aria-label="Six by six game board"></div>
+        </div>
         <div class="board-caption">
           <span id="board-mode">CLASSIC</span>
           <span>6 × 6 · ENDLESS POSSIBILITIES</span>
@@ -143,17 +128,6 @@
     </section>
     <aside class="players-panel" aria-label="Players">
       <div id="players"></div>
-      <div class="push-tip">
-        <span class="tip-icon" aria-hidden="true">↗</span>
-        <p>
-          <strong>Every move makes waves.</strong>
-          Place a piece to push all its neighbors one square away. Yours, too.
-        </p>
-        <button class="text-button" id="tip-rules">
-          Learn the rules
-          <span>→</span>
-        </button>
-      </div>
     </aside>
   </div>
   <footer>

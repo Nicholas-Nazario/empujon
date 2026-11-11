@@ -24,13 +24,14 @@ export function renderGame(layout: Layout, state: ViewState): void {
     ? `${playerName} wins`
     : choice ? `${playerName} · choose an upgrade` : `${playerName}'s turn`;
   layout.boardHeading.className = `board-heading color-${activePlayer}`;
+  layout.playPanel.className = `play-panel color-${activePlayer}`;
   layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
   layout.boardMode.textContent = game.mode.toUpperCase();
   const thinking = state.computer && actingPlayer(game) === 1;
   layout.status.textContent = thinking ? (choice ? 'Beginner is choosing an upgrade…' : 'Beginner is choosing a move…') : game.message;
   layout.opponentNote.textContent = state.computer
-    ? 'You are Terracotta. Beginner plays Indigo. Builds lines, keeps pieces in play, and earns upgrades.'
-    : 'Take turns on this device, or play Beginner in either mode.';
+    ? 'You’re Terracotta. Your robot rival plays Indigo and is learning the ropes.'
+    : 'Share a screen. Trade little pushes.';
   for (const button of layout.opponentButtons) {
     const selected = (button.dataset.opponent === 'beginner') === state.computer;
     button.classList.toggle('active', selected);

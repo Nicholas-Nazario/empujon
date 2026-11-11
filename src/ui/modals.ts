@@ -17,7 +17,6 @@ export function createModals(layout: Layout, onConfirmNewGame: (mode: Mode) => v
   const openRules = () => layout.rulesDialog.showModal();
 
   layout.rulesOpenButton.addEventListener('click', openRules);
-  layout.tipRulesButton.addEventListener('click', openRules);
   layout.rulesCloseButton.addEventListener('click', () => layout.rulesDialog.close());
   layout.cancelNewButton.addEventListener('click', () => layout.newGameDialog.close());
   layout.confirmNewButton.addEventListener('click', () => {
