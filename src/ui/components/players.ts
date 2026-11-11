@@ -1,7 +1,6 @@
-import { playerNames as names } from '../player-colors.ts';
 import { difficultyNames, type Difficulty } from '../../ai.ts';
 import { renderIcon } from '../icons.ts';
-import { type Game, type Player } from '../../game.ts';
+import { names, type Game, type Player } from '../../game.ts';
 import { renderPiece } from './piece.ts';
 
 function renderPiecePicker(baseCount: number, upgradedCount: number, selectedUpgraded: boolean): string {

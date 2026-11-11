@@ -137,7 +137,7 @@ The CLI reuses the website's TypeScript rules engine. For AI integrations, every
 ## Computer opponents
 
 Select **Beginner**, **Intermediate**, or **Advanced** under **Who’s across the board?**.
-You play Terracotta and move first; the computer plays Indigo. All difficulties
+You play Terracotta and move first; the computer plays Adoquín. All difficulties
 support Classic and Upgrade, including both piece types and upgrade reward choices.
 
 - **Beginner** takes immediate wins and varies among promising moves, valuing board presence, open pairs, and upgrades.

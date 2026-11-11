@@ -19,7 +19,7 @@ tonal variation and fine grain.
 | Page canvas | Seafoam `#DCEBE5` | `--canvas` |
 | Cards, dialogs, turn heading, coordinate frame | Stucco white `#F7F5F0` | `--osj-stucco-white` |
 | Player 1 pieces and identity | Terracotta `#B34F3B` | `--terracotta` |
-| Player 2 pieces and identity | Adoquín blue `#416B8A` | `--indigo` (legacy token name) |
+| Player 2 pieces and identity | Adoquín blue `#416B8A` | `--adoquin` |
 | Light board cells | Blue-gray `#DCE3E4` | `.cell` |
 | Alternate board cells | Blue-gray `#CDD8DD` | Alternating `.cell` selectors |
 | Grid lines | Slate `#A7B3B9` | `.board` background |
@@ -30,9 +30,8 @@ tonal variation and fine grain.
 Use the final effective values in `src/style.css`; earlier declarations include
 historical palette values. The dark slate text token differs intentionally from
 the bluer Adoquín piece color. Display player names are **Terracotta** and
-**Adoquín**; shared game state still uses the original player names internally.
-Keep that mapping in `src/ui/player-colors.ts` consistent across labels,
-announcements, and online identity.
+**Adoquín**, defined in `src/game.ts` and shared by the interface and CLI.
+Keep those names consistent across labels, announcements, and online identity.
 
 Keep white surfaces white in their selected and current states. Use borders,
 small marks, badges, and text to communicate selection and player identity.

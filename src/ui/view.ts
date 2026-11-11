@@ -1,8 +1,7 @@
-import { playerNames as names, playerMessage } from './player-colors.ts';
 import { difficultyNames, type Difficulty } from '../ai.ts';
 import { renderIcon } from './icons.ts';
 import { actingPlayer } from '../actions.ts';
-import { type Game } from '../game.ts';
+import { names, type Game } from '../game.ts';
 import type { Layout } from './layout.ts';
 import { renderBoard, renderUpgradeChoices } from './components/board.ts';
 import { renderPlayers } from './components/players.ts';
@@ -31,7 +30,7 @@ export function renderGame(layout: Layout, state: ViewState): void {
   layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
   layout.boardMode.textContent = game.mode.toUpperCase();
   const thinking = !!state.computer && actingPlayer(game) === 1;
-  layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : playerMessage(game.message);
+  layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
   layout.opponentNote.textContent = state.computer
     ? `You’re ${names[0]}. ${difficultyNames[state.computer]} plays ${names[1]}.`
     : 'Share a screen. Trade little pushes.';

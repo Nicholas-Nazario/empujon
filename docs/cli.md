@@ -50,7 +50,7 @@ Every response, including errors, contains:
 | `legalActions` | Valid place or choose objects, ready to send as requests. Empty after a win. |
 | `done` | Whether the game has a winner. |
 
-Players are `0` (Terracotta) and `1` (Indigo). `state.board` is a row-major array of 36 cells; each cell is `null` or `{"owner":0,"upgraded":false}`. A1 is index 0, F1 is 5, A6 is 30, and F6 is 35. `state.pools` contains each player's off-board pieces. `state.winner` is `null`, `0`, or `1`; `state.reason` explains the win.
+Players are `0` (Terracotta) and `1` (Adoquín). `state.board` is a row-major array of 36 cells; each cell is `null` or `{"owner":0,"upgraded":false}`. A1 is index 0, F1 is 5, A6 is 30, and F6 is 35. `state.pools` contains each player's off-board pieces. `state.winner` is `null`, `0`, or `1`; `state.reason` explains the win.
 
 **Use `actor` to select the agent**, rather than alternating players yourself or assuming `state.turn` always owns the next decision. An upgrade choice can belong to the other player. `state.choices[0].options` lists the board-cell indices for each available choice. Automatically resolved upgrades are already reflected in the returned state.
 

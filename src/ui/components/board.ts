@@ -1,5 +1,4 @@
-import { playerNames as names } from '../player-colors.ts';
-import { lines, type Game } from '../../game.ts';
+import { lines, names, type Game } from '../../game.ts';
 import { coordinate, renderPiece } from './piece.ts';
 
 export function renderBoard(game: Game, selectedUpgraded: boolean, locked = false): string {

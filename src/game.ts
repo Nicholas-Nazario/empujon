@@ -7,7 +7,7 @@ export type Game = {
   pools: [Piece[], Piece[]]; winner: Player | null; reason: string;
   choices: Choice[]; moves: number; last: number | null; message: string; rewards: string[];
 };
-export const names = ['Terracotta', 'Indigo'] as const;
+export const names = ['Terracotta', 'Adoquín'] as const;
 export function createGame(mode: Mode): Game {
   return { mode, board: Array(36).fill(null), turn: 0,
     pools: [Array.from({length: 8}, () => ({owner: 0, upgraded: false})), Array.from({length: 8}, () => ({owner: 1, upgraded: false}))],
