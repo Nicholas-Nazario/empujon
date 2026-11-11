@@ -15,6 +15,7 @@ export function mountLayout(root: HTMLElement) {
   return {
     board: requireElement<HTMLDivElement>(root, '#board'),
     boardHeading: requireElement(root, '.board-heading'),
+    playPanel: requireElement(root, '.play-panel'),
     turnTitle: requireElement(root, '#turn-title'),
     moveCount: requireElement(root, '#move-count'),
     boardMode: requireElement(root, '#board-mode'),
@@ -30,7 +31,6 @@ export function mountLayout(root: HTMLElement) {
     soundButton: requireElement<HTMLButtonElement>(root, '#sound'),
     restartButton: requireElement<HTMLButtonElement>(root, '#restart'),
     rulesOpenButton: requireElement<HTMLButtonElement>(root, '#rules-open'),
-    tipRulesButton: requireElement<HTMLButtonElement>(root, '#tip-rules'),
     rulesDialog: requireElement<HTMLDialogElement>(root, '#rules'),
     rulesCloseButton: requireElement<HTMLButtonElement>(root, '#rules-close'),
     newGameDialog: requireElement<HTMLDialogElement>(root, '#new-game'),
