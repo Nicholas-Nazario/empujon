@@ -1,17 +1,18 @@
 <header class="topbar">
   <a class="wordmark" href="./" aria-label="Empujón home">
+    <span class="brand-island" aria-hidden="true"><span data-icon="island"></span></span>
     <span>empuj<span class="accent-letter">o<span class="wordmark-accent" aria-hidden="true">´</span></span>n</span>
     <span class="brand-dot"></span>
   </a>
   <button class="text-button" id="rules-open">
     How to play
-    <span aria-hidden="true">↗</span>
+    <span data-icon="info"></span>
   </button>
 </header>
 <main>
   <section id="online-banner" class="online-banner" aria-label="Online game" hidden>
     <div class="online-identity">
-      <span class="online-badge">◉ ONLINE GAME</span>
+      <span class="online-badge"><span data-icon="online"></span> ONLINE GAME</span>
       <span id="online-seat"></span>
     </div>
     <p id="online-status" role="status" aria-live="polite"></p>
@@ -24,7 +25,7 @@
         <button class="mode active" data-mode="classic">
           <span class="mode-heading">
             Classic
-            <span class="mode-icon">↗</span>
+            <span class="mode-icon"><span data-icon="classic"></span></span>
           </span>
           <span>Find your line. Or fill the board.</span>
           <small>THE ORIGINAL CHALLENGE</small>
@@ -32,7 +33,7 @@
         <button class="mode" data-mode="upgrade">
           <span class="mode-heading">
             Upgrade
-            <span class="mode-icon">✦</span>
+            <span class="mode-icon"><span data-icon="upgrade"></span></span>
           </span>
           <span>Build your pieces. Raise the stakes.</span>
           <small>AN EXTRA LAYER OF STRATEGY</small>
@@ -41,8 +42,8 @@
       <div class="opponent-picker" role="group" aria-label="Who’s across the board?">
         <span class="tiny-label">WHO’S ACROSS THE BOARD?</span>
         <button class="mode active" data-opponent="local" aria-pressed="true">Pass &amp; play</button>
-        <button class="mode" data-opponent="beginner" aria-pressed="false">Beginner · CPU</button>
-        <button class="mode" id="host-online">Invite a friend <span aria-hidden="true">↗</span></button>
+        <button class="mode" data-opponent="beginner" aria-pressed="false">Beginner · CPU <span data-icon="robot"></span></button>
+        <button class="mode" id="host-online">Invite a friend <span data-icon="invite"></span></button>
         <p id="opponent-note"></p>
       </div>
       <div class="goal-card">
@@ -63,7 +64,7 @@
           <label class="sr-only" for="sidebar-invite-url">Game invite link</label>
           <input id="sidebar-invite-url" class="invite-preview" readonly>
           <button class="copy-button" id="show-invite">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+            <span data-icon="copy"></span>
             <span>Copy invite link</span>
           </button>
           <p id="sidebar-copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
@@ -113,15 +114,15 @@
       <div id="choices" class="choices"></div>
       <div class="board-actions">
         <button class="text-button" id="undo">
-          ↶
+          <span data-icon="undo"></span>
           <span>Undo move</span>
         </button>
         <button class="text-button" id="sound" aria-pressed="false">
-          ♪
+          <span data-icon="music-off"></span>
           <span>Sound off</span>
         </button>
         <button class="text-button" id="restart">
-          ↻
+          <span data-icon="restart"></span>
           <span>New game</span>
         </button>
       </div>

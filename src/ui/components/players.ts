@@ -1,3 +1,4 @@
+import { renderIcon } from '../icons.ts';
 import { names, type Game, type Player } from '../../game.ts';
 import { renderPiece } from './piece.ts';
 
@@ -7,7 +8,7 @@ function renderPiecePicker(baseCount: number, upgradedCount: number, selectedUpg
       <button data-piece="base" ${baseCount ? '' : 'disabled'}
         class="${selectedUpgraded ? '' : 'chosen'}">Base · ${baseCount}</button>
       <button data-piece="upgraded" ${upgradedCount ? '' : 'disabled'}
-        class="${selectedUpgraded ? 'chosen' : ''}">✦ Upgraded · ${upgradedCount}</button>
+        class="${selectedUpgraded ? 'chosen' : ''}">${renderIcon('upgrade')} Upgraded · ${upgradedCount}</button>
     </div>`;
 }
 
