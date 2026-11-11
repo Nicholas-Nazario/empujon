@@ -268,3 +268,8 @@ h2 { font-size: var(--font-size-24); }
   .board-actions { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); }
   .board-actions .text-button { justify-self:start; }
 }
+
+.touch-preview-setting { display:none; }
+@media (any-pointer:coarse) {
+  .touch-preview-setting { display:flex; align-items:center; flex-wrap:wrap; gap:8px; margin-top:16px; font-size:var(--font-size-11); }
+}

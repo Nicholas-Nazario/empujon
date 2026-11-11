@@ -72,7 +72,7 @@ player colors.
   Default annotations to off. Keep the last-move description visible inside
   the turn heading and name the player who placed the piece. Place the
   annotation toggle in the action bar alongside sound, undo, and new game.
-  Keep preview text below the board. Touch users preview first and confirm with a labeled button.
+  Keep preview text below the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
 - Upgrade triples pulse in order using the winning-piece animation, without a green cell fill, before returning to supply. Keep them visible briefly with reduced motion and pause board input during the indication.
 - Winning lines use a stronger green cell fill.
   Count across the winning pieces with one staggered pulse, then wait two

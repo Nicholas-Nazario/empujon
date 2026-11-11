@@ -31,6 +31,24 @@ export function startApp(root: HTMLElement): void {
   let annotationsEnabled = false;
   let previewIndex: number | null = null;
   let touchPreview = false;
+  let touchPreviewEnabled = false;
+  try { touchPreviewEnabled = localStorage.getItem('empujon:touch-preview') === 'true'; } catch { /* Use single-tap placement when storage is unavailable. */ }
+  const touchPreviewSetting = root.querySelector<HTMLButtonElement>('#touch-preview')!;
+  function renderTouchPreviewSetting(): void {
+    touchPreviewSetting.setAttribute('aria-pressed', String(touchPreviewEnabled));
+    touchPreviewSetting.title = touchPreviewEnabled ? 'Tap once to preview, then tap again to place' : 'Tap once to place';
+    touchPreviewSetting.innerHTML = `${renderIcon(touchPreviewEnabled ? 'touch' : 'touch-off')}<span>Touch preview ${touchPreviewEnabled ? 'on' : 'off'}</span>`;
+  }
+  renderTouchPreviewSetting();
+  touchPreviewSetting.addEventListener('click', () => {
+    touchPreviewEnabled = !touchPreviewEnabled;
+    renderTouchPreviewSetting();
+    touchPreview = false;
+    touchSelection = null;
+    showMovement();
+    try { localStorage.setItem('empujon:touch-preview', String(touchPreviewEnabled)); } catch { /* Keep the setting for this session. */ }
+  });
+  let touchSelection: number | null = null;
   const movementOverlay = root.querySelector<HTMLElement>('#movement-overlay')!;
   const movementDescription = root.querySelector<HTMLElement>('#movement-description')!;
   const movementPreview = root.querySelector<HTMLElement>('#movement-preview')!;
@@ -38,6 +56,7 @@ export function startApp(root: HTMLElement): void {
   const previewPlace = root.querySelector<HTMLButtonElement>('#preview-place')!;
   function showMovement(index: number | null = null): void {
     previewIndex = index;
+    if (index === null) touchSelection = null;
     const movement = index === null ? game.lastMovement ?? null
       : previewMovement(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
     const rendered = renderMovement(movement, index !== null);
@@ -58,7 +77,7 @@ export function startApp(root: HTMLElement): void {
   previewPlace.addEventListener('click', () => {
     if (previewIndex !== null) { touchPreview = false; actions.placePiece(previewIndex); }
   });
-  layout.board.addEventListener('pointerdown', event => { touchPreview = event.pointerType === 'touch'; });
+  layout.board.addEventListener('pointerdown', event => { touchPreview = touchPreviewEnabled && event.pointerType === 'touch'; });
   for (const type of ['pointerover', 'focusin']) layout.board.addEventListener(type, event => {
     const cell = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-cell]') : null;
     if (cell && !cell.disabled) showMovement(Number(cell.dataset.cell));
@@ -286,7 +305,12 @@ export function startApp(root: HTMLElement): void {
   const actions: GameActions = {
     placePiece(index) {
       if (Date.now() < upgradeUntil) return;
-      if (touchPreview) { showMovement(index); return; }
+      if (touchPreview && touchSelection !== index) {
+        touchSelection = index;
+        showMovement(index);
+        return;
+      }
+      touchSelection = null;
       touchPreview = false;
       if (online) { void submit({ type: 'place', index, upgraded: selectedUpgraded ?? defaultPieceUpgraded(game) }); return; }
       if (computer && actingPlayer(game) === 1) return;
