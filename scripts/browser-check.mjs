@@ -28,7 +28,7 @@ try {
   for(let i=0;i<100;i++) { if(await evaluate('!!document.querySelector("[data-cell]")')) break; await new Promise(r=>setTimeout(r,100)); }
   assert.equal(await evaluate('document.querySelectorAll("[data-cell]").length'),36);
   await evaluate('document.querySelectorAll("[data-cell]")[14].click()');
-  assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Indigo/);
+  assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Adoquín/);
   assert.equal(await evaluate('document.querySelectorAll("#board .piece:not(.ghost .piece)").length'),1);
   await evaluate('document.querySelector("#undo").click()');
   assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Terracotta/);

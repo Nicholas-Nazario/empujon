@@ -1,7 +1,8 @@
+import { playerNames as names, playerMessage } from './player-colors.ts';
 import { beginnerAction, type Difficulty } from '../ai.ts';
 import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
-import { createGame, place, chooseUpgrade, defaultPieceUpgraded, names, type Game, type Mode } from '../game.ts';
+import { createGame, place, chooseUpgrade, defaultPieceUpgraded, type Game, type Mode } from '../game.ts';
 import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
 import { mountLayout } from './layout.ts';
@@ -181,7 +182,7 @@ export function startApp(root: HTMLElement): void {
         : (game.choices.length ? 'Waiting for your opponent to choose an upgrade…' : "Waiting for your opponent’s move…");
       onlineStatus.textContent = turnText;
       layout.turnTitle.textContent = !online.joined ? 'Waiting for opponent' : game.winner !== null ? (game.winner === seat.player ? 'You win' : 'Opponent wins') : mine ? 'Your turn' : 'Opponent’s turn';
-      layout.status.textContent = game.winner !== null ? game.message : turnText;
+      layout.status.textContent = game.winner !== null ? playerMessage(game.message) : turnText;
       banner.classList.toggle('is-your-turn', mine);
       layout.boardHeading.classList.toggle('your-turn', mine);
       document.title = mine ? 'Your turn · Empujón' : 'Empujón · Online game';
