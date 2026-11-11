@@ -29,6 +29,33 @@ node scripts/browser-check.mjs
 
 The browser script uses installed Google Chrome on macOS or `google-chrome` on Linux. Override `CHROME_PATH` or `GAME_URL` if needed. It exercises gameplay controls and checks desktop, tablet, and 320px/390px mobile layouts. Screenshots are written to the system temporary directory.
 
+## Deploy to Fly.io
+
+The Dockerfile builds the website with Node.js and serves `dist/` with nginx on
+port 8080. No database, volume, or secrets are required. Hosting keeps the same
+two-player, one-device gameplay; it does not add online multiplayer.
+
+Install the [Fly CLI](https://fly.io/docs/flyctl/install/), then:
+
+1. Run `fly auth login`.
+2. Choose a globally unique app name and set `app` in `fly.toml` to that name.
+3. Run `fly apps create YOUR_APP_NAME` (use the same name).
+4. Run `fly deploy --ha=false` to deploy a single Machine.
+5. Run `fly open` to play.
+
+For subsequent updates, run `fly deploy`. The configuration uses the Newark
+region (`ewr`), enforces HTTPS, and lets the Machine stop when idle and start
+when a request arrives. Change `primary_region` if you prefer another region.
+
+To try the production container locally:
+
+```sh
+docker build -t empujon .
+docker run --rm -p 8080:8080 empujon
+```
+
+Open <http://localhost:8080>.
+
 ## Stack and structure
 
 TypeScript, Vite, and responsive CSS, with no runtime framework or game library. Google Fonts provides optional typography; system fonts are the fallback.
