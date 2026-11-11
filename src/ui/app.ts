@@ -15,6 +15,17 @@ import { renderGame, renderSoundButton } from './view.ts';
 export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
   const sounds = createGameSound();
+  const settings = root.querySelector<HTMLDetailsElement>('.game-settings')!;
+  const mobileLayout = matchMedia('(max-width: 650px)');
+  const playersPanel = root.querySelector<HTMLElement>('.players-panel')!;
+  const boardActions = root.querySelector<HTMLElement>('.board-actions')!;
+  function arrangeMobileLayout(): void {
+    settings.open = !mobileLayout.matches;
+    if (mobileLayout.matches) boardActions.before(playersPanel);
+    else layout.playPanel.after(playersPanel);
+  }
+  arrangeMobileLayout();
+  mobileLayout.addEventListener('change', arrangeMobileLayout);
   let game = createGame('classic');
   let upgradeUntil = 0;
   let upgradeKey = '';
@@ -234,6 +245,7 @@ export function startApp(root: HTMLElement): void {
       cell?.style.setProperty('--win-order', String(order));
     });
     if (returning.length) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
+    root.querySelector('#settings-summary')!.textContent = `${game.mode === 'classic' ? 'Classic' : 'Upgrade'} · ${online ? 'Online' : computer ? `${computer[0].toUpperCase()}${computer.slice(1)} CPU` : 'Pass & play'}`;
     hostButton.disabled = !!online;
     turnLimit.disabled = !!online;
     leaveButton.hidden = !online;
