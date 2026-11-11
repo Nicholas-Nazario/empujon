@@ -6,6 +6,11 @@ licenses do not grant trademark rights. This policy grants only the limited
 branding permissions described here; it does not assert that a trademark is
 registered.
 
+Empujón is inspired by Scott Brady’s Gekitai and Gekitai 2. The branding policy
+applies only to the Empujón name and project branding; it does not claim ownership
+of those games or their mechanics. No affiliation with or endorsement by their
+creator is implied.
+
 You may use the name to refer truthfully to this project, link to it, describe
 compatibility, or provide attribution. For example, a remix may say “Based on
 Empujón by Nicholas Nazario and contributors” with a link to the repository.
