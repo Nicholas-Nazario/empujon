@@ -1,0 +1,43 @@
+<dialog id="online-setup" aria-labelledby="online-setup-title">
+  <p class="eyebrow">PLAY ONLINE · 1 OF 2</p>
+  <h2 id="online-setup-title">Set up a game with a friend.</h2>
+  <p>Choose your rules. We’ll assign your color at random and give you a private invite link.</p>
+  <form id="online-setup-form">
+    <div class="online-fields">
+      <label for="online-mode">Game rules</label>
+      <select id="online-mode">
+        <option value="classic">Classic — find your line or fill the board</option>
+        <option value="upgrade">Upgrade — build stronger pieces</option>
+      </select>
+      <label for="turn-limit">Time per turn</label>
+      <select id="turn-limit">
+        <option value="0">No time limit</option>
+        <option value="30">30 seconds</option>
+        <option value="60">1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
+    </div>
+    <p class="online-footnote">The clock starts when your friend joins. Running out of time forfeits the game. Every game expires after two hours.</p>
+    <p id="online-setup-error" role="alert"></p>
+    <div class="dialog-actions">
+      <button type="button" class="secondary-button" id="cancel-online">Cancel</button>
+      <button type="submit" class="primary-button" id="start-online">Start online game</button>
+    </div>
+  </form>
+</dialog>
+<dialog id="online-invite" aria-labelledby="online-invite-title">
+  <p class="eyebrow">YOU’RE ONLINE · 2 OF 2</p>
+  <h2 id="online-invite-title">Invite your friend.</h2>
+  <p id="invite-description"></p>
+  <div id="invite-controls" class="online-fields">
+    <label for="invite-url">Your game’s invite link</label>
+    <input id="invite-url" readonly>
+    <p id="invite-feedback" role="status" aria-live="polite"></p>
+  </div>
+  <p class="online-footnote">You can copy this link again from your online game panel.</p>
+  <div class="dialog-actions">
+    <button class="secondary-button" id="close-invite">Back to game</button>
+    <button class="primary-button" id="copy-invite"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg> Copy link &amp; continue</button>
+  </div>
+</dialog>

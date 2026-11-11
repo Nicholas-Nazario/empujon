@@ -30,6 +30,13 @@
         <br>Surprising possibilities.</span>
     </div>
   </section>
+  <section id="online-banner" class="online-banner" aria-label="Online game" hidden>
+    <div class="online-identity">
+      <span class="online-badge">◉ ONLINE GAME</span>
+      <span id="online-seat"></span>
+    </div>
+    <p id="online-status" role="status" aria-live="polite"></p>
+  </section>
   <div class="game-layout">
     <aside class="setup-panel">
       <p class="eyebrow">MAKE IT YOUR GAME</p>
@@ -65,13 +72,33 @@
           <span>3 in a row</span>
         </div>
       </div>
-      <div class="local-note">
-        <span aria-hidden="true">◉</span>
-        <p>
-          A little practice. A new perspective.
-          <br>
-          <span>Find your next good move.</span>
-        </p>
+      <div class="online-panel" id="online-entry">
+        <span class="tiny-label">PLAY FROM ANYWHERE</span>
+        <p>Invite a friend to your own online board.</p>
+        <button class="primary-button" id="host-online">Play online with a friend</button>
+      </div>
+      <div id="online-details" hidden>
+        <section class="session-section" aria-labelledby="online-rules-label">
+          <p class="eyebrow" id="online-rules-label">GAME RULES</p>
+          <h2 id="online-rules"></h2>
+          <p id="online-settings"></p>
+        </section>
+        <section class="session-section invite-section" aria-labelledby="invite-label">
+          <p class="eyebrow" id="invite-label">INVITE A FRIEND</p>
+          <label class="sr-only" for="sidebar-invite-url">Game invite link</label>
+          <input id="sidebar-invite-url" class="invite-preview" readonly>
+          <button class="copy-button" id="show-invite">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h3"/></svg>
+            <span>Copy invite link</span>
+          </button>
+          <p id="sidebar-copy-feedback" class="copy-feedback" role="status" aria-live="polite"></p>
+        </section>
+        <section class="session-section" aria-labelledby="session-label">
+          <p class="eyebrow" id="session-label">SESSION</p>
+          <dl class="session-meta"><div><dt>Game code</dt><dd id="online-code"></dd></div></dl>
+          <p id="online-clock" aria-live="off"></p>
+          <button class="danger-button" id="leave-online" hidden>Leave online game</button>
+        </section>
       </div>
     </aside>
     <section class="play-panel" aria-label="Game board">
