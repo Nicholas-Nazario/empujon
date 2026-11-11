@@ -3,6 +3,7 @@
 ## Visual design
 
 - Read and follow [the visual identity guidelines](docs/visual-identity.md) when changing visual UI.
+- Define colors, typography, textures, and shadows in `src/visual-identity.css`; reuse its tokens in components.
 - Keep the guidelines current when intentionally changing the design direction.
 
 ## Pull requests

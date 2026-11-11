@@ -14,24 +14,35 @@ tonal variation and fine grain.
 
 ## Palette and roles
 
-| Role | Color | Current CSS token |
-| --- | --- | --- |
-| Page canvas | Seafoam `#DCEBE5` | `--canvas` |
-| Cards, dialogs, turn heading, coordinate frame | Stucco white `#F7F5F0` | `--osj-stucco-white` |
-| Player 1 pieces and identity | Terracotta `#B34F3B` | `--terracotta` |
-| Player 2 pieces and identity | Adoquín blue `#416B8A` | `--adoquin` |
-| Light board cells | Blue-gray `#DCE3E4` | `.cell` |
-| Alternate board cells | Blue-gray `#CDD8DD` | Alternating `.cell` selectors |
-| Grid lines | Slate `#A7B3B9` | `.board` background |
-| Main text | Dark slate `#3B424C` | `--osj-adoquin-blue` |
-| Wordmark lettering | Ausubo brown `#4A2E1B` | `--osj-ausubo-wood` |
-| General separators | Muted seafoam `#B7CBC2` | `--line` |
+The executable source of truth is [`src/visual-identity.css`](../src/visual-identity.css).
+It defines each identity token once: palette, font families, type scale, heading treatment,
+shape scale, mineral grain, surface shading, and shadows. Components in `src/style.css`
+consume these tokens; they must not redefine identity tokens or introduce
+hardcoded colors or font families. Contextual `--player` and `--tint` variables
+select the canonical player tokens for each seat.
 
-Use the final effective values in `src/style.css`; earlier declarations include
-historical palette values. The dark slate text token differs intentionally from
-the bluer Adoquín piece color. Display player names are **Terracotta** and
-**Adoquín**, defined in `src/game.ts` and shared by the interface and CLI.
-Keep those names consistent across labels, announcements, and online identity.
+| Role | Token |
+| --- | --- |
+| Page canvas | `--canvas` |
+| Cards, dialogs, turn heading, coordinate frame | `--osj-stucco-white` |
+| Terracotta pieces and identity | `--terracotta` |
+| Adoquín pieces and identity | `--adoquin` |
+| Player tints | `--terracotta-tint`, `--adoquin-tint` |
+| Light and alternate board cells | `--board-cell`, `--board-cell-alternate` |
+| Grid lines | `--board-grid` |
+| Main text | `--osj-adoquin-blue` |
+| Wordmark lettering | `--osj-ausubo-wood` |
+| General separators | `--line` |
+
+Change palette values in the token file, not in individual components or this
+document. Its values are authoritative; this document describes their roles.
+The dark slate text token differs intentionally from the bluer Adoquín piece
+color. The browser toolbar color reads `--canvas` at startup rather than keeping
+a separate hexadecimal value in HTML.
+
+Display player names are **Terracotta** and **Adoquín**, defined once in
+`src/game.ts` and shared by the interface and CLI. Use those shared names for
+labels, announcements, and online identity.
 
 Keep white surfaces white in their selected and current states. Use borders,
 small marks, badges, and text to communicate selection and player identity.
@@ -85,8 +96,9 @@ expressive serif titles, clear sans-serif instructions and controls.
 | Player names | Playfair Display 700 | 17px | 15px |
 | Body, controls, status, labels, coordinates | Montserrat | Follow component scale | Check readability at 320px |
 
-Use `--font-heading` and `--font-body` in `src/style.css` rather than adding
-new font families to individual components. Keep the serif's tight tracking
+Use `--font-heading` and `--font-body` from `src/visual-identity.css` rather than adding
+new font families to individual components. Reuse the `--font-size-*` scale for
+component text sizes; keep layout dimensions in `src/style.css`. Keep the serif's tight tracking
 out of body copy and small labels. Preserve generous line height for rules and
 instructions, and check long labels after any typography change.
 
