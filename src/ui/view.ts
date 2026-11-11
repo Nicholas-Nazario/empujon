@@ -1,3 +1,4 @@
+import { renderIcon } from './icons.ts';
 import { actingPlayer } from '../actions.ts';
 import { names, type Game } from '../game.ts';
 import type { Layout } from './layout.ts';
@@ -57,5 +58,6 @@ export function renderGame(layout: Layout, state: ViewState): void {
 
 export function renderSoundButton(button: HTMLButtonElement, enabled: boolean): void {
   button.setAttribute('aria-pressed', String(enabled));
-  button.innerHTML = `♪ <span>Sound ${enabled ? 'on' : 'off'}</span>`;
+  button.title = enabled ? 'Turn sound off' : 'Turn sound on';
+  button.innerHTML = `${renderIcon(enabled ? 'music' : 'music-off')}<span>Sound ${enabled ? 'on' : 'off'}</span>`;
 }

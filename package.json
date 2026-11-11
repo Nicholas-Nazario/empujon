@@ -13,6 +13,7 @@
     "start": "node --experimental-strip-types server/index.ts"
   },
   "devDependencies": {
+    "@phosphor-icons/core": "^2.1.1",
     "@types/node": "^24.19.2",
     "typescript": "~5.9.3",
     "vite": "^7.2.2"
