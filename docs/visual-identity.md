@@ -66,6 +66,13 @@ player colors.
   raised rims, conspicuous stripes, or coarse texture.
 - Preserve gold upgrade rings and marks, last-move dots, choice outlines,
   hover previews, and win highlights. Material effects must not obscure them.
+- Movement annotations use short, softly transparent black direction arrows with substantial strokes; off-board
+  pushes keep black arrows and use a × in the pushed piece’s player color and an explicit return-to-supply description.
+  The existing last-move dot identifies the placement; omit destination rings and placement outlines. The eye-icon toggle controls only board arrows and off-board marks.
+  Default annotations to off. Keep the last-move description visible inside
+  the turn heading and name the player who placed the piece. Place the
+  annotation toggle in the action bar alongside sound, undo, and new game.
+  Keep preview text below the board. Touch users preview first and confirm with a labeled button.
 - Winning lines use a stronger green cell fill.
   Count across the winning pieces with one staggered pulse, then wait two
   seconds from the finish before fading in the result dialog. Reduced-motion

@@ -27,6 +27,57 @@ try {
   await cmd('Page.navigate',{url:baseUrl});
   for(let i=0;i<100;i++) { if(await evaluate('!!document.querySelector("[data-cell]")')) break; await new Promise(r=>setTimeout(r,100)); }
   assert.equal(await evaluate('document.querySelectorAll("[data-cell]").length'),36);
+  assert.equal(await evaluate('document.querySelector("#movement-toggle").getAttribute("aria-pressed")'), 'false');
+  assert.equal(await evaluate('document.querySelector("#movement-overlay").innerHTML'), '');
+  await evaluate('document.querySelector("#movement-toggle").click()');
+  // Preview destinations and off-board returns without changing the board.
+  await evaluate('document.querySelectorAll("[data-cell]")[0].click(); document.querySelectorAll("[data-cell]")[7].focus()');
+  assert.match(await evaluate('document.querySelector("#movement-preview").textContent'), /Preview: place at B2.*A1 → off board/);
+  assert.equal(await evaluate('document.querySelectorAll("#movement-overlay .push-off").length'), 1);
+  const offColors = await evaluate(`(() => {
+    const group = document.querySelector('#movement-overlay .push-off');
+    const root = getComputedStyle(document.documentElement);
+    return { arrow: getComputedStyle(group.querySelector('line')).stroke,
+      cross: getComputedStyle(group.querySelector('text')).fill,
+      piece: getComputedStyle(document.querySelector('#board .p0')).backgroundColor };
+  })()`);
+  assert.equal(offColors.arrow, 'rgb(32, 32, 32)');
+  assert.equal(offColors.cross, offColors.piece);
+
+  await evaluate('document.querySelectorAll("[data-cell]")[7].click()');
+  assert.match(await evaluate('document.querySelector("#movement-description").textContent'), /Last move: Adoquín placed at B2/);
+  await evaluate('document.querySelector("#movement-toggle").click()');
+  assert.equal(await evaluate('document.querySelector("#movement-overlay").innerHTML'), '');
+  assert.equal(await evaluate('document.querySelector("#movement-description").hidden'), false);
+  assert.match(await evaluate('document.querySelector("#movement-description").textContent'), /Last move: Adoquín placed at B2/);
+  assert.ok(await evaluate('!!document.querySelector("#movement-toggle .ui-icon")'));
+  await evaluate('document.querySelectorAll("[data-cell]")[13].focus()');
+  assert.equal(await evaluate('document.querySelector("#movement-overlay").innerHTML'), '');
+  assert.match(await evaluate('document.querySelector("#movement-description").textContent'), /Last move: Adoquín placed at B2/);
+
+  await evaluate('document.querySelector("#movement-toggle").click(); document.querySelector("#undo").click(); document.querySelector("#undo").click()');
+  await evaluate('document.querySelectorAll("[data-cell]")[14].click(); document.querySelectorAll("[data-cell]")[13].focus()');
+  assert.match(await evaluate('document.querySelector("#movement-preview").textContent'), /C3 → D3/);
+  for (const width of [1440, 768, 390, 320]) {
+    await cmd('Emulation.setDeviceMetricsOverride', {width, height:1000, deviceScaleFactor:1, mobile:width<700});
+    const geometry = await evaluate('({scroll:document.documentElement.scrollWidth,board:document.querySelector("#board").getBoundingClientRect().toJSON(),overlay:document.querySelector("#movement-overlay").getBoundingClientRect().toJSON()})');
+    assert.ok(geometry.scroll <= width);
+    assert.ok(Math.abs(geometry.board.width - geometry.overlay.width) < 1);
+    assert.ok(Math.abs(geometry.board.height - geometry.overlay.height) < 1);
+    const shot = await cmd('Page.captureScreenshot', {format:'png',captureBeyondViewport:true});
+    await writeFile(`${tmpdir()}/empujon-movement-${width}.png`, Buffer.from(shot.data,'base64'));
+  }
+  await evaluate(`(() => {
+    const cell = document.querySelector('[data-cell="13"]');
+    cell.dispatchEvent(new PointerEvent('pointerdown', {pointerType:'touch',bubbles:true}));
+    cell.click();
+  })()`);
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 02');
+  assert.equal(await evaluate('document.querySelector("#preview-place").hidden'), false);
+  await evaluate('document.querySelector("#preview-place").click()');
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 03');
+  await evaluate('document.querySelector("#undo").click(); document.querySelector("#undo").click()');
+  await cmd('Emulation.setDeviceMetricsOverride', {width:1440,height:1000,deviceScaleFactor:1,mobile:false});
   await evaluate('document.querySelectorAll("[data-cell]")[14].click()');
   assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Adoquín/);
   assert.equal(await evaluate('document.querySelectorAll("#board .piece:not(.ghost .piece)").length'),1);
