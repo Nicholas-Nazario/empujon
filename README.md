@@ -54,3 +54,13 @@ In Upgrade mode, upgraded pieces are selected by default when available; players
 Base or mixed triples return to supply upgraded. Connected, overlapping triples offer a choice of one triple; disconnected triples resolve separately. Eight pieces on the board without a triple let the player choose one base piece to return upgraded. A triple takes precedence over the eight-piece reward, because resolving it removes pieces from the board. This precedence makes explicit an edge case not ordered in the supplied rules sheet.
 
 Three upgraded pieces in a line, or all eight upgraded pieces on the board, win before any upgrade exchange. Undo restores the entire previous turn, including any upgrade choices.
+
+## Terminal play and AI integration
+
+```sh
+npm run cli                         # Interactive Classic
+npm run cli -- --mode upgrade       # Interactive Upgrade
+node bin/empujon.mjs --json          # JSON Lines API for agent processes
+```
+
+The CLI reuses the website's TypeScript rules engine. For AI integrations, every response exposes the full state, the actual decision owner, and all legal actions. TypeScript agents can also import the engine directly without subprocess overhead. See [CLI and AI interface](docs/cli.md) for commands, protocol details, and a Python self-play example.
