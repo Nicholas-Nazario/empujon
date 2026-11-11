@@ -28,7 +28,7 @@ try {
   for(let i=0;i<100;i++) { if(await evaluate('!!document.querySelector("[data-cell]")')) break; await new Promise(r=>setTimeout(r,100)); }
   assert.equal(await evaluate('document.querySelectorAll("[data-cell]").length'),36);
   await evaluate('document.querySelectorAll("[data-cell]")[14].click()');
-  assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Indigo/);
+  assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Adoquín/);
   assert.equal(await evaluate('document.querySelectorAll("#board .piece:not(.ghost .piece)").length'),1);
   await evaluate('document.querySelector("#undo").click()');
   assert.match(await evaluate('document.querySelector("#turn-title").textContent'),/Terracotta/);
@@ -55,6 +55,25 @@ try {
   assert.equal(await evaluate('document.querySelector("#sound").getAttribute("aria-pressed")'),'true');
   await evaluate('document.querySelector("#sound").click()');
   assert.equal(await evaluate('document.querySelector("#sound").getAttribute("aria-pressed")'),'false');
+  // Changing a player token must update every consumer without separate edits.
+  const identityColors = await evaluate(`(() => {
+    const root = document.documentElement;
+    root.style.setProperty('--terracotta', '#125459');
+    root.style.setProperty('--adoquin', '#502d96');
+    const result = {
+      terracotta: getComputedStyle(document.querySelector('.p0')).backgroundColor,
+      period: getComputedStyle(document.querySelector('.brand-dot')).backgroundColor,
+      adoquin: getComputedStyle(document.querySelector('.p1')).backgroundColor,
+      accent: getComputedStyle(document.querySelector('.wordmark-accent')).color
+    };
+    root.style.removeProperty('--terracotta');
+    root.style.removeProperty('--adoquin');
+    return result;
+  })()`);
+  assert.equal(identityColors.terracotta, 'rgb(18, 84, 89)');
+  assert.equal(identityColors.period, identityColors.terracotta);
+  assert.equal(identityColors.adoquin, 'rgb(80, 45, 150)');
+  assert.equal(identityColors.accent, identityColors.adoquin);
   // Reach an earned-upgrade position through real gameplay, then check selection.
   // Fixed replay fixture uses only the game engine, independently of the CLI API.
   const path = [{"type": "place", "index": 0, "upgraded": false}, {"type": "place", "index": 35, "upgraded": false}, {"type": "place", "index": 31, "upgraded": false}, {"type": "place", "index": 9, "upgraded": false}, {"type": "place", "index": 22, "upgraded": false}, {"type": "place", "index": 30, "upgraded": false}, {"type": "place", "index": 3, "upgraded": false}, {"type": "place", "index": 5, "upgraded": false}, {"type": "place", "index": 20, "upgraded": false}, {"type": "place", "index": 34, "upgraded": false}, {"type": "place", "index": 14, "upgraded": false}, {"type": "place", "index": 18, "upgraded": false}, {"type": "place", "index": 7, "upgraded": false}, {"type": "place", "index": 9, "upgraded": false}, {"type": "place", "index": 35, "upgraded": false}, {"type": "place", "index": 6, "upgraded": false}, {"type": "place", "index": 23, "upgraded": false}, {"type": "place", "index": 28, "upgraded": false}];

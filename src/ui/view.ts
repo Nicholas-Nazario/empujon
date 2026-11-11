@@ -32,7 +32,7 @@ export function renderGame(layout: Layout, state: ViewState): void {
   const thinking = !!state.computer && actingPlayer(game) === 1;
   layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
   layout.opponentNote.textContent = state.computer
-    ? `You’re Terracotta. ${difficultyNames[state.computer]} plays Indigo.`
+    ? `You’re ${names[0]}. ${difficultyNames[state.computer]} plays ${names[1]}.`
     : 'Share a screen. Trade little pushes.';
   for (const button of layout.opponentButtons) {
     const selected = button.dataset.opponent === (state.computer ?? 'local');

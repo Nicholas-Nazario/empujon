@@ -37,7 +37,7 @@ test('malformed JSON and invalid commands return parseable errors without exitin
 });
 test('interactive CLI accepts coordinates, upgraded piece syntax, undo and quit',()=> {
   const output = run('C3\nundo\nnew upgrade\nplace D4 upgraded\nchoose 0\nquit\n',['--mode','classic']);
-  assert.match(output,/Indigo's turn/);
+  assert.match(output,/Adoquín's turn/);
   assert.match(output,/Upgrade/);
   assert.match(output,/Illegal placement/);
   assert.match(output,/Illegal choice/);

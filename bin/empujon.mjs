@@ -70,7 +70,7 @@ function draw() {
   for (let row=0; row<6; row++) {
     console.log(` ${row+1}  ${game.board.slice(row*6,row*6+6).map(p => !p ? '·' : p.owner === 0 ? (p.upgraded ? 'X' : 'x') : (p.upgraded ? 'O' : 'o')).join(' ')}`);
   }
-  console.log('\nx / X = Terracotta · o / O = Indigo · uppercase = upgraded');
+  console.log('\nx / X = Terracotta · o / O = Adoquín · uppercase = upgraded');
   for (const p of [0,1]) {
     const supply = game.pools[p];
     console.log(`${names[p]} supply: ${supply.filter(x=>!x.upgraded).length} base, ${supply.filter(x=>x.upgraded).length} upgraded`);
