@@ -4,6 +4,20 @@ A two-player abstract strategy game inspired by the mechanics of Scott Brady’s
 
 Play together on one device. Choose **Classic** or **Upgrade**, place pieces, and push neighboring pieces to change the board. 
 
+## License and branding
+
+Noncommercial contributions, forks, and remixes are welcome. Original code uses
+PolyForm Noncommercial 1.0.0; original artwork and written content use
+CC BY-NC-SA 4.0. Commercial uses outside those licenses' express permissions
+require separate permission. This is a source-available project.
+
+Forks and adaptations must use distinct product branding; factual attribution
+such as “Based on Empujón” is welcome. The name and any project logo are reserved
+for the official project, subject to the permissions in the branding policy.
+
+See [licensing and scope](LICENSE.md), the [full license texts](LICENSES/), and
+the [branding policy](BRANDING.md).
+
 ## Development
 
 Requires Node.js 22.18+ (Node 24 recommended).
