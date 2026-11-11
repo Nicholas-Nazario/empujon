@@ -6,13 +6,13 @@ import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
 import { mountLayout } from './layout.ts';
 import { createModals } from './modals.ts';
-import { createMoveSound } from './sound.ts';
+import { createGameSound, transitionSounds } from './sound.ts';
 import { renderGame, renderSoundButton } from './view.ts';
 
 /** Owns the local session and translates UI actions into shared-engine calls. */
 export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
-  const moveSound = createMoveSound();
+  const sounds = createGameSound();
   let game = createGame('classic');
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
@@ -20,6 +20,10 @@ export function startApp(root: HTMLElement): void {
   let computer = false;
   let pendingComputer = false;
   let computerTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function playTransition(before: Game, after: Game): void {
+    if (soundEnabled) sounds.play(transitionSounds(before, after, seat?.player ?? (computer ? 0 : null)));
+  }
 
   function cancelComputer(): void {
     clearTimeout(computerTimer);
@@ -32,8 +36,9 @@ export function startApp(root: HTMLElement): void {
       computerTimer = undefined;
       const action = beginnerAction(game);
       if (!action) return;
-      game = applyAction(game, action);
-      if (soundEnabled) moveSound.play();
+      const next = applyAction(game, action);
+      playTransition(game, next);
+      game = next;
       render();
     }, 400);
   }
@@ -66,7 +71,7 @@ export function startApp(root: HTMLElement): void {
     clock.textContent = `Session expires in ${remaining} min` + (online.deadline ? ` · Turn: ${Math.max(0, Math.ceil((online.deadline - Date.now()) / 1000))}s` : '');
   }
   setInterval(updateClock, 1000);
-  function accept(state: OnlineState) { if (online && state.revision < online.revision) return; onlineError = ''; online = state; game = state.game; selectedUpgraded = null; render(); }
+  function accept(state: OnlineState) { if (online && state.revision < online.revision) return; onlineError = ''; if (online && state.revision > online.revision) playTransition(game, state.game); online = state; game = state.game; selectedUpgraded = null; render(); }
   function error(error: unknown) { onlineError = error instanceof Error ? error.message : 'Unable to connect.'; onlineStatus.textContent = onlineError; }
   function connect(state: OnlineState & Seat) {
     cancelComputer();
@@ -194,15 +199,17 @@ export function startApp(root: HTMLElement): void {
       const next = place(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
       if (next === game) return;
       history.push(game);
+      playTransition(game, next);
       game = next;
       selectedUpgraded = null;
-      if (soundEnabled) moveSound.play();
       render();
     },
     chooseUpgrade(option) {
       if (online) { void submit({ type: 'choose', option }); return; }
       if (computer && actingPlayer(game) === 1) return;
-      game = chooseUpgrade(game, option);
+      const next = chooseUpgrade(game, option);
+      playTransition(game, next);
+      game = next;
       selectedUpgraded = null;
       render();
     },
@@ -228,6 +235,8 @@ export function startApp(root: HTMLElement): void {
     },
     toggleSound() {
       soundEnabled = !soundEnabled;
+      if (soundEnabled) sounds.play(['place']);
+      else sounds.stop();
       // Keep focus on the stable sound button while its label changes.
       renderSoundButton(layout.soundButton, soundEnabled);
     },
