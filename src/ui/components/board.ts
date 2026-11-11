@@ -5,10 +5,11 @@ export function renderBoard(game: Game, selectedUpgraded: boolean, locked = fals
   const choice = game.choices[0];
   const winningCells = game.winner === null
     ? []
-    : lines(game.board, game.winner, game.mode === 'upgrade').flat();
+    : [...new Set(lines(game.board, game.winner, game.mode === 'upgrade').flat())];
 
   return game.board.map((piece, index) => {
     const classes = ['cell'];
+    const winOrder = winningCells.indexOf(index);
     if (index === game.last) classes.push('last');
     if (winningCells.includes(index)) classes.push('winning');
     if (choice?.options.some(option => option.includes(index))) classes.push('eligible');
@@ -22,7 +23,8 @@ export function renderBoard(game: Game, selectedUpgraded: boolean, locked = fals
 
     return `
       <button class="${classes.join(' ')}" data-cell="${index}"
-        aria-label="${coordinate(index)}, ${description}" ${disabled ? 'disabled' : ''}>
+        ${winOrder >= 0 ? `style="--win-order: ${winOrder}"` : ''}
+        aria-label="${coordinate(index)}, ${description}${winOrder >= 0 ? ', winning line' : ''}" ${disabled ? 'disabled' : ''}>
         ${content}
       </button>`;
   }).join('');

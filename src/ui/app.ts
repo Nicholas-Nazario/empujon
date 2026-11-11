@@ -21,6 +21,7 @@ export function startApp(root: HTMLElement): void {
   let pendingComputer: Difficulty | null = null;
   let computerWorker: Worker | undefined;
   let computerTimer: ReturnType<typeof setTimeout> | undefined;
+  let resultShown = false;
 
   function playTransition(before: Game, after: Game): void {
     if (soundEnabled) sounds.play(transitionSounds(before, after, seat?.player ?? (computer ? 0 : null)));
@@ -190,9 +191,25 @@ export function startApp(root: HTMLElement): void {
     if (onlineError) onlineStatus.textContent = onlineError;
     updateClock();
     scheduleComputer();
+    if (game.winner === null) {
+      resultShown = false;
+      modals.cancelResult();
+    }
+    else if (!resultShown) {
+      resultShown = true;
+      pendingComputer = computer;
+      const player = seat?.player ?? (computer ? 0 : null);
+      const heading = player === null ? `Congratulations, ${names[game.winner]}!`
+        : game.winner === player ? 'Congratulations! You won!' : 'Better luck next time!';
+      modals.showResult(game.mode, heading, `${game.message} View the board to analyze the final position, or start a new game.`);
+    }
   }
 
   function startNewGame(mode: Mode): void {
+    if (online) {
+      window.location.href = window.location.pathname;
+      return;
+    }
     cancelComputer();
     computer = pendingComputer;
     game = createGame(mode);

@@ -66,6 +66,10 @@ player colors.
   raised rims, conspicuous stripes, or coarse texture.
 - Preserve gold upgrade rings and marks, last-move dots, choice outlines,
   hover previews, and win highlights. Material effects must not obscure them.
+- Winning lines use a stronger green cell fill.
+  Count across the winning pieces with one staggered pulse, then wait two
+  seconds from the finish before fading in the result dialog. Reduced-motion
+  users get static highlights and no fade or pulse, with the same reading pause.
 
 The architectural references guide color and material choices. They do not
 require literal balconies, wood grain, arches, or dramatic tropical shadows in
