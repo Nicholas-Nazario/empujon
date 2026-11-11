@@ -84,6 +84,7 @@
           <span id="turn-title"></span>
         </div>
         <span class="move-count" id="move-count"></span>
+        <p id="movement-description" class="movement-description" role="status"></p>
       </div>
       <div class="board-frame">
         <div class="coordinates top-coords" aria-hidden="true">
@@ -104,11 +105,16 @@
             <span>6</span>
           </div>
           <div class="board" id="board" role="group" aria-label="Six by six game board"></div>
+          <div id="movement-overlay" class="movement-overlay"></div>
         </div>
         <div class="board-caption">
           <span id="board-mode">CLASSIC</span>
         </div>
       </div>
+      <div class="movement-controls">
+        <button class="text-button" id="preview-place" hidden>Place here</button>
+      </div>
+      <p id="movement-preview" class="movement-description" role="status" hidden></p>
       <p class="status" id="status" role="status" aria-live="polite"></p>
       <div id="choices" class="choices"></div>
       <div class="board-actions">
@@ -120,6 +126,7 @@
           <span data-icon="music-off"></span>
           <span>Sound off</span>
         </button>
+        <button class="text-button" id="movement-toggle" aria-pressed="false" title="Toggle movement annotations"><span data-icon="eye-off"></span><span>Annotations off</span></button>
         <button class="text-button" id="restart">
           <span data-icon="restart"></span>
           <span>New game</span>

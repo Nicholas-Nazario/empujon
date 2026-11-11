@@ -1,7 +1,9 @@
 import { beginnerAction, type Difficulty } from '../ai.ts';
 import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
-import { createGame, place, chooseUpgrade, defaultPieceUpgraded, names, type Game, type Mode } from '../game.ts';
+import { createGame, place, chooseUpgrade, defaultPieceUpgraded, previewMovement, names, type Game, type Mode } from '../game.ts';
+import { renderIcon } from './icons.ts';
+import { renderMovement } from './components/movement.ts';
 import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
 import { mountLayout } from './layout.ts';
@@ -22,6 +24,45 @@ export function startApp(root: HTMLElement): void {
   let computerWorker: Worker | undefined;
   let computerTimer: ReturnType<typeof setTimeout> | undefined;
   let resultShown = false;
+  let annotationsEnabled = false;
+  let previewIndex: number | null = null;
+  let touchPreview = false;
+  const movementOverlay = root.querySelector<HTMLElement>('#movement-overlay')!;
+  const movementDescription = root.querySelector<HTMLElement>('#movement-description')!;
+  const movementPreview = root.querySelector<HTMLElement>('#movement-preview')!;
+  const movementToggle = root.querySelector<HTMLButtonElement>('#movement-toggle')!;
+  const previewPlace = root.querySelector<HTMLButtonElement>('#preview-place')!;
+  function showMovement(index: number | null = null): void {
+    previewIndex = index;
+    const movement = index === null ? game.lastMovement ?? null
+      : previewMovement(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
+    const rendered = renderMovement(movement, index !== null);
+    movementOverlay.innerHTML = annotationsEnabled ? rendered.svg : '';
+    movementDescription.textContent = game.lastMovement
+      ? renderMovement(game.lastMovement, false).description : 'Last move: no pieces placed yet.';
+    movementPreview.textContent = index === null ? '' : rendered.description;
+    movementPreview.hidden = index === null;
+    previewPlace.hidden = !touchPreview || index === null || !movement;
+    if (index !== null) previewPlace.textContent = `Place at ${'ABCDEF'[index % 6]}${Math.floor(index / 6) + 1}`;
+  }
+  movementToggle.addEventListener('click', () => {
+    annotationsEnabled = !annotationsEnabled;
+    movementToggle.setAttribute('aria-pressed', String(annotationsEnabled));
+    movementToggle.innerHTML = `${renderIcon(annotationsEnabled ? 'eye' : 'eye-off')}<span>Annotations ${annotationsEnabled ? 'on' : 'off'}</span>`;
+    showMovement();
+  });
+  previewPlace.addEventListener('click', () => {
+    if (previewIndex !== null) { touchPreview = false; actions.placePiece(previewIndex); }
+  });
+  layout.board.addEventListener('pointerdown', event => { touchPreview = event.pointerType === 'touch'; });
+  for (const type of ['pointerover', 'focusin']) layout.board.addEventListener(type, event => {
+    const cell = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-cell]') : null;
+    if (cell && !cell.disabled) showMovement(Number(cell.dataset.cell));
+  });
+  layout.board.addEventListener('pointerleave', () => { if (!touchPreview) showMovement(); });
+  layout.board.addEventListener('focusout', event => {
+    if (!touchPreview && !(event.relatedTarget instanceof Node && layout.board.contains(event.relatedTarget))) showMovement();
+  });
 
   function playTransition(before: Game, after: Game): void {
     if (soundEnabled) sounds.play(transitionSounds(before, after, seat?.player ?? (computer ? 0 : null)));
@@ -189,6 +230,7 @@ export function startApp(root: HTMLElement): void {
       if (!mine) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
     }
     if (onlineError) onlineStatus.textContent = onlineError;
+    showMovement();
     updateClock();
     scheduleComputer();
     if (game.winner === null) {
@@ -221,6 +263,8 @@ export function startApp(root: HTMLElement): void {
   const modals = createModals(layout, startNewGame);
   const actions: GameActions = {
     placePiece(index) {
+      if (touchPreview) { showMovement(index); return; }
+      touchPreview = false;
       if (online) { void submit({ type: 'place', index, upgraded: selectedUpgraded ?? defaultPieceUpgraded(game) }); return; }
       if (computer && actingPlayer(game) === 1) return;
       const next = place(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));

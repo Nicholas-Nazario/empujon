@@ -141,6 +141,11 @@
   --choice-button-border-color: #6c9989;
   --choice-hover: #cde1d5;
 
+  --win-order: 0;
+  --movement-ink: #202020;
+  --movement-arrow-opacity: .4;
+  --movement-surface: var(--osj-stucco-white);
+
   /* Shape scale */
   --radius-50percent: 50%;
   --radius-9: 9px;

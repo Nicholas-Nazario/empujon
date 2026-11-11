@@ -2,7 +2,10 @@ export type Player = 0 | 1;
 export type Mode = 'classic' | 'upgrade';
 export type Piece = { owner: Player; upgraded: boolean };
 export type Choice = { owner: Player; kind: 'line' | 'eight'; options: number[][] };
+export type Push = { owner: Player; from: number; to: number | null; dr: number; dc: number };
+export type Movement = { owner: Player; placement: number; pushes: Push[] };
 export type Game = {
+  lastMovement?: Movement;
   mode: Mode; board: (Piece | null)[]; turn: Player;
   pools: [Piece[], Piece[]]; winner: Player | null; reason: string;
   choices: Choice[]; moves: number; last: number | null; message: string; rewards: string[];
@@ -76,6 +79,29 @@ export function defaultPieceUpgraded(game: Game): boolean {
   return game.mode === 'upgrade' && game.pools[game.turn].some(piece => piece.upgraded);
 }
 
+/** Shared by placement and previews so strength, blocking, and edge rules agree. */
+export function previewMovement(game: Game, index: number, upgraded = defaultPieceUpgraded(game)): Movement | null {
+  if (game.winner !== null || game.choices.length || !Number.isInteger(index) || index < 0 || index >= 36 || game.board[index]
+    || !game.pools[game.turn].some(piece => piece.upgraded === upgraded)) return null;
+  const pushes: Push[] = [];
+  const r = Math.floor(index/6), c = index%6;
+  // Each ray has one neighbor and one destination; pushes cannot chain.
+  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
+    if (!dr && !dc) continue;
+    const nr = r+dr, nc = c+dc;
+    if (nr < 0 || nr > 5 || nc < 0 || nc > 5) continue;
+    const from = nr*6+nc, piece = game.board[from];
+    if (!piece) continue;
+    // Strength applies to either owner and every direction, including off-board pushes.
+    if (game.mode === 'upgrade' && piece.upgraded && !upgraded) continue;
+    const tr = r+2*dr, tc = c+2*dc;
+    if (tr < 0 || tr > 5 || tc < 0 || tc > 5) {
+      pushes.push({ owner: piece.owner, from, to: null, dr, dc });
+    } else if (!game.board[tr*6+tc]) pushes.push({ owner: piece.owner, from, to: tr*6+tc, dr, dc });
+  }
+  return { owner: game.turn, placement: index, pushes };
+}
+
 export function place(game: Game, index: number, upgraded = defaultPieceUpgraded(game)): Game {
   if (game.winner !== null || game.choices.length || !Number.isInteger(index) || index < 0 || index >= 36 || game.board[index]) return game;
   const supplyIndex = game.pools[game.turn].findIndex(x => x.upgraded === upgraded);
@@ -83,21 +109,14 @@ export function place(game: Game, index: number, upgraded = defaultPieceUpgraded
   const g = structuredClone(game);
   g.rewards = [];
   g.board[index] = g.pools[g.turn].splice(supplyIndex,1)[0];
-  const r = Math.floor(index/6), c = index%6;
-  // Each ray has one neighbor and one destination; pushes cannot chain.
-  for (let dr = -1; dr <= 1; dr++) for (let dc = -1; dc <= 1; dc++) {
-    if (!dr && !dc) continue;
-    const nr = r+dr, nc = c+dc;
-    if (nr < 0 || nr > 5 || nc < 0 || nc > 5) continue;
-    const from = nr*6+nc, piece = g.board[from];
-    if (!piece) continue;
-    // Strength applies to either owner and every direction, including off-board pushes.
-    if (g.mode === 'upgrade' && piece.upgraded && !upgraded) continue;
-    const tr = r+2*dr, tc = c+2*dc;
-    if (tr < 0 || tr > 5 || tc < 0 || tc > 5) {
-      g.pools[piece.owner].push(piece); g.board[from] = null;
-    } else if (!g.board[tr*6+tc]) { g.board[tr*6+tc] = piece; g.board[from] = null; }
+  const movement = previewMovement(game, index, upgraded)!;
+  for (const { from, to } of movement.pushes) {
+    const piece = g.board[from]!;
+    if (to === null) g.pools[piece.owner].push(piece);
+    else g.board[to] = piece;
+    g.board[from] = null;
   }
+  g.lastMovement = movement;
   g.last = index; g.moves++;
   const order: Player[] = [g.turn, (1-g.turn) as Player];
   for (const p of order) {

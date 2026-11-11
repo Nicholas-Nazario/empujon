@@ -6,6 +6,4 @@ export function renderPiece(owner: Player, upgraded = false): string {
   return `<span class="piece p${owner}${upgradeClass}" aria-hidden="true">${upgraded ? renderIcon('upgrade') : ''}</span>`;
 }
 
-export function coordinate(index: number): string {
-  return `${'ABCDEF'[index % 6]}${Math.floor(index / 6) + 1}`;
-}
+export { coordinate } from './coordinate.ts';
