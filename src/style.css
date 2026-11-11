@@ -6,3 +6,79 @@
 @media(prefers-reduced-motion:no-preference){.cell .piece{animation:arrive .16s ease-out}@keyframes arrive{from{transform:scale(.88);opacity:.8}to{transform:scale(1);opacity:1}}}
 @media(min-width:1051px){main,.topbar{max-width:1280px}.intro{padding-top:32px;padding-bottom:29px}h1{font-size:39px}.game-layout{gap:28px}.board-frame{padding-left:20px;padding-right:20px}}
 .mini-line .piece.upgraded{font-size:10px;outline-width:1px;outline-offset:-3px}
+
+.online-panel { display: grid; gap: 12px; margin-top: 24px; }
+.online-panel label { font-size: 13px; font-weight: 600; }
+.online-panel select, .online-panel input { width: 100%; min-width: 0; padding: 10px; border: 1px solid #cfc9bd; border-radius: 8px; background: #fffdf7; color: inherit; }
+.online-panel p { font-size: 13px; line-height: 1.5; }
+#invite-controls:not([hidden]) { display: grid; gap: 8px; }
+.your-turn { box-shadow: 0 0 0 3px #ae654b55; border-radius: 10px; transition: box-shadow .3s; }
+button:disabled { cursor: default; }
+
+[hidden] { display: none !important; }
+.online-fields { display: grid; gap: 10px; }
+.online-fields label { font-size: 13px; font-weight: 600; }
+.online-fields select, .online-fields input { width: 100%; min-width: 0; font: inherit; font-size: 13px; padding: 12px; border: 1px solid #c7cebd; border-radius: 7px; background: #fffdf7; color: inherit; }
+.online-fields label:not(:first-child) { margin-top: 10px; }
+.online-footnote { font-size: 11px; }
+#online-setup-error, #invite-feedback { color: #9b442e; margin: 0; }
+#online-setup-error:empty, #invite-feedback:empty { display: none; }
+.online-banner { display: flex; align-items: center; justify-content: space-between; gap: 16px; border: 1px solid #a9b7c5; border-left: 4px solid #535b8d; border-radius: 10px; background: #e9edf2; padding: 17px 20px; margin-bottom: 24px; }
+.online-identity { display: grid; gap: 7px; }
+.online-badge { color: #535b8d; font-size: 10px; font-weight: 700; letter-spacing: 1.5px; }
+#online-seat { font-size: 12px; color: #566373; }
+#online-status { font-size: 14px; font-weight: 600; margin: 0; line-height: 1.6; }
+.online-banner.is-your-turn { background: #e7edde; border-color: #8d9e7b; border-left-color: #53634a; }
+.is-online .setup-panel > .eyebrow, .is-online .setup-panel > h2, .is-online .mode-picker { display: none; }
+.is-online .goal-card { margin-top: 18px; }
+#online-details { padding-top: 12px; }
+#online-details h2 { margin-bottom: 8px; }
+#online-details p:not(.eyebrow) { font-size: 12px; line-height: 1.6; color: #727b6c; }
+.is-online .intro { padding-top: 24px; padding-bottom: 24px; }
+.is-online .intro h1 { font-size: 28px; }
+.is-online .intro h1 br, .is-online .intro h1 span, .is-online .intro-copy, .is-online .intro-tag { display: none; }
+.is-online .board-frame { border-color: #adb6c7; }
+.is-online #undo, .is-online #restart { display: none; }
+@media(max-width:650px) {
+  .online-banner { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding: 14px; }
+  .online-panel { margin-top: 16px; gap: 8px; }
+  .online-panel p { margin: 0; }
+  #online-details { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; padding: 0; }
+  #online-details .eyebrow, #online-details h2, #online-details p { margin: 0; }
+  #online-details .eyebrow { width: 100%; }
+  #online-details h2 { font-size: 16px; }
+  #online-details #online-clock { width: 100%; font-size: 11px; }
+  .dialog-actions { flex-wrap: wrap; }
+  .online-fields select { font-size: 12px; }
+}
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+#online-details { display: grid; gap: 14px; padding-top: 18px; }
+.session-section { min-width: 0; border: 1px solid #deded1; border-radius: 10px; padding: 16px; background: #f8f6ef; }
+.session-section.invite-section { background: #e9edf2; border-color: #cbd2dc; }
+#online-details .session-section .eyebrow { margin: 0 0 12px; font-size: 9px; }
+#online-details h2 { font-size: 18px; margin: 0 0 6px; }
+#online-details .session-section p:not(.eyebrow) { margin: 8px 0 0; font-size: 11px; }
+.invite-preview { display: block; width: 100%; min-width: 0; border: 1px solid #cbd2dc; background: #f9fafc; border-radius: 5px; padding: 9px; font: inherit; font-size: 11px; color: #566373; text-overflow: ellipsis; }
+.copy-button { display: inline-flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 10px; border: 1px solid #b4bdca; border-radius: 6px; background: #fffdf8; padding: 10px; font-size: 12px; font-weight: 600; }
+.copy-button:hover { background: #f1f4f8; border-color: #535b8d; }
+.copy-button svg, #copy-invite svg { flex-shrink: 0; }
+#copy-invite { display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+#online-details .copy-feedback { color: #42613b; }
+.copy-feedback:empty { display: none; }
+.session-meta { margin: 0; font-size: 11px; }
+.session-meta > div { display: flex; justify-content: space-between; align-items: center; gap: 10px; }
+.session-meta dt { color: #727b6c; }
+.session-meta dd { margin: 0; font-family: ui-monospace, monospace; letter-spacing: 1px; font-weight: 600; }
+.danger-button { width: 100%; margin-top: 16px; padding: 10px 12px; border: 1px solid #ad463e; border-radius: 6px; background: #ad463e; color: #fff; font-size: 12px; font-weight: 600; }
+.danger-button:hover { background: #913930; border-color: #913930; }
+@media(max-width:650px) {
+  #online-details { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; gap: 10px; padding-top: 0; }
+  #online-details .session-section:first-child { grid-column: 1 / -1; }
+  .session-section { padding: 12px; }
+  #online-details h2 { font-size: 16px; }
+  .copy-button, .danger-button { font-size: 11px; }
+}
+.is-online .session-section .goal-card { margin-top: 16px; padding-top: 14px; }
+.is-online .session-section .goal-card p { margin-bottom: 12px !important; }
+@media(max-width:650px) { .is-online .session-section .goal-card { display: none; } }
