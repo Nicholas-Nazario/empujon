@@ -1,0 +1,130 @@
+<header class="topbar">
+  <a class="wordmark" href="./" aria-label="Empujón home">
+    empujón
+    <span class="brand-dot"></span>
+  </a>
+  <div class="header-note">
+    <span class="live-dot"></span>
+    Two players. One board.
+  </div>
+  <button class="text-button" id="rules-open">
+    How to play
+    <span aria-hidden="true">↗</span>
+  </button>
+</header>
+<main>
+  <section class="intro">
+    <div>
+      <p class="eyebrow">A GAME OF SPACE & STRATEGY</p>
+      <h1>
+        A little push.
+        <br>
+        <span>A whole new game.</span>
+      </h1>
+      <p class="intro-copy">Make your move. Shift the balance. Find your line.</p>
+    </div>
+    <div class="intro-tag">
+      <span class="tag-symbol" aria-hidden="true">↗</span>
+      <span>
+        Simple moves.
+        <br>Surprising possibilities.</span>
+    </div>
+  </section>
+  <div class="game-layout">
+    <aside class="setup-panel">
+      <p class="eyebrow">MAKE IT YOUR GAME</p>
+      <h2>Choose your rules.</h2>
+      <div class="mode-picker" role="group" aria-label="Game rules">
+        <button class="mode active" data-mode="classic">
+          <span class="mode-heading">
+            Classic
+            <span class="mode-icon">↗</span>
+          </span>
+          <span>Find your line. Or fill the board.</span>
+          <small>THE ORIGINAL CHALLENGE</small>
+        </button>
+        <button class="mode" data-mode="upgrade">
+          <span class="mode-heading">
+            Upgrade
+            <span class="mode-icon">✦</span>
+          </span>
+          <span>Build your pieces. Raise the stakes.</span>
+          <small>AN EXTRA LAYER OF STRATEGY</small>
+        </button>
+      </div>
+      <div class="goal-card">
+        <span class="tiny-label">YOUR WAY TO WIN</span>
+        <p id="goal"></p>
+        <div class="mini-line" aria-hidden="true">
+          <span>3 in a row</span>
+        </div>
+      </div>
+      <div class="local-note">
+        <span aria-hidden="true">◉</span>
+        <p>
+          Made for the same table.
+          <br>
+          <span>Take turns on this device.</span>
+        </p>
+      </div>
+    </aside>
+    <section class="play-panel" aria-label="Game board">
+      <div class="board-heading">
+        <div>
+          <span class="live-dot"></span>
+          <span id="turn-title"></span>
+        </div>
+        <span class="move-count" id="move-count"></span>
+      </div>
+      <div class="board-frame">
+        <div class="coordinates top-coords" aria-hidden="true">
+          <span>A</span>
+          <span>B</span>
+          <span>C</span>
+          <span>D</span>
+          <span>E</span>
+          <span>F</span>
+        </div>
+        <div class="board" id="board" role="group" aria-label="Six by six game board"></div>
+        <div class="board-caption">
+          <span id="board-mode">CLASSIC</span>
+          <span>6 × 6 · ENDLESS POSSIBILITIES</span>
+        </div>
+      </div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+      <div id="choices" class="choices"></div>
+      <div class="board-actions">
+        <button class="text-button" id="undo">
+          ↶
+          <span>Undo move</span>
+        </button>
+        <button class="text-button" id="sound" aria-pressed="false">
+          ♪
+          <span>Sound off</span>
+        </button>
+        <button class="text-button" id="restart">
+          ↻
+          <span>New game</span>
+        </button>
+      </div>
+    </section>
+    <aside class="players-panel" aria-label="Players">
+      <div id="players"></div>
+      <div class="push-tip">
+        <span class="tip-icon" aria-hidden="true">↗</span>
+        <p>
+          <strong>Every move makes waves.</strong>
+          Place a piece to push all its neighbors one square away. Yours, too.
+        </p>
+        <button class="text-button" id="tip-rules">
+          Learn the rules
+          <span>→</span>
+        </button>
+      </div>
+    </aside>
+  </div>
+  <footer>
+    <span>A small board. A big back-and-forth.</span>
+    <span>Designed to bring two minds together.</span>
+  </footer>
+</main>
