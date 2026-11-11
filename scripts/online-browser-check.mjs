@@ -40,6 +40,7 @@ try {
   }
   const host = await tab(baseUrl);
   await until(host, '!!document.querySelector("#host-online")');
+  await host.evaluate('document.querySelector("[data-opponent=beginner]").click(); document.querySelectorAll("[data-cell]")[0].click()');
   await host.evaluate('document.querySelector("#host-online").click()');
   assert.equal(await host.evaluate('document.querySelector("#online-setup").open'), true);
   await host.evaluate('document.querySelector("#cancel-online").click()');
@@ -48,6 +49,9 @@ try {
   await host.evaluate('document.querySelector("#host-online").click(); document.querySelector("#online-mode").value="upgrade"; document.querySelector("#turn-limit").value="60"; document.querySelector("#start-online").click()');
   await until(host, 'document.querySelector("#online-invite").open && document.querySelector("#online-status").textContent.includes("Waiting for your opponent to join")');
   assert.equal(await host.evaluate('document.querySelector("#online-setup").open'), false);
+  assert.equal(await host.evaluate('getComputedStyle(document.querySelector(".opponent-picker")).display'), 'none');
+  assert.equal(await host.evaluate('document.querySelector("[data-opponent=beginner]").disabled'), true);
+  assert.equal(await host.evaluate('document.querySelector("[data-opponent=beginner]").getAttribute("aria-pressed")'), 'false');
   assert.equal(await host.evaluate('document.querySelector("#online-rules").textContent'), 'Upgrade rules');
   assert.equal(await host.evaluate('document.querySelector("#online-settings").textContent'), '60 seconds per turn');
   await host.evaluate('Object.defineProperty(navigator, "clipboard", {value: {writeText: async text => { window.copiedInvite = text; }}, configurable: true}); document.querySelector("#copy-invite").click()');

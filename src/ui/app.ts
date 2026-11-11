@@ -1,4 +1,5 @@
-import { actingPlayer, type Action } from '../actions.ts';
+import { beginnerAction } from '../ai.ts';
+import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
 import { createGame, place, chooseUpgrade, defaultPieceUpgraded, names, type Game, type Mode } from '../game.ts';
 import { highlightChoice } from './components/board.ts';
@@ -16,6 +17,26 @@ export function startApp(root: HTMLElement): void {
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
+  let computer = false;
+  let pendingComputer = false;
+  let computerTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function cancelComputer(): void {
+    clearTimeout(computerTimer);
+    computerTimer = undefined;
+  }
+
+  function scheduleComputer(): void {
+    if (online || !computer || actingPlayer(game) !== 1 || computerTimer !== undefined) return;
+    computerTimer = setTimeout(() => {
+      computerTimer = undefined;
+      const action = beginnerAction(game);
+      if (!action) return;
+      game = applyAction(game, action);
+      if (soundEnabled) moveSound.play();
+      render();
+    }, 400);
+  }
 
   let online: OnlineState | null = null;
   let seat: Seat | null = null;
@@ -48,6 +69,9 @@ export function startApp(root: HTMLElement): void {
   function accept(state: OnlineState) { if (online && state.revision < online.revision) return; onlineError = ''; online = state; game = state.game; selectedUpgraded = null; render(); }
   function error(error: unknown) { onlineError = error instanceof Error ? error.message : 'Unable to connect.'; onlineStatus.textContent = onlineError; }
   function connect(state: OnlineState & Seat) {
+    cancelComputer();
+    computer = false;
+    pendingComputer = false;
     seat = { token: state.token, player: state.player };
     localStorage.setItem(`empujon:${state.code}`, JSON.stringify(seat));
     window.history.replaceState(null, '', `?game=${state.code}`);
@@ -112,7 +136,7 @@ export function startApp(root: HTMLElement): void {
     if (selectedUpgraded !== null && !supply.some(piece => piece.upgraded === selectedUpgraded)) {
       selectedUpgraded = null;
     }
-    renderGame(layout, { game, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled });
+    renderGame(layout, { game, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
     hostButton.disabled = !!online;
     turnLimit.disabled = !!online;
     leaveButton.hidden = !online;
@@ -121,7 +145,7 @@ export function startApp(root: HTMLElement): void {
     entry.hidden = !!online;
     root.classList.toggle('is-online', !!online);
     layout.restartButton.disabled = !!online;
-    for (const button of layout.modeButtons) button.disabled = !!online;
+    for (const button of [...layout.modeButtons, ...layout.opponentButtons]) button.disabled = !!online;
     if (online && seat) {
       const rulesSection = details.querySelector('.session-section')!;
       const goalCard = root.querySelector('.goal-card')!;
@@ -150,9 +174,12 @@ export function startApp(root: HTMLElement): void {
     }
     if (onlineError) onlineStatus.textContent = onlineError;
     updateClock();
+    scheduleComputer();
   }
 
   function startNewGame(mode: Mode): void {
+    cancelComputer();
+    computer = pendingComputer;
     game = createGame(mode);
     history = [];
     selectedUpgraded = null;
@@ -163,6 +190,7 @@ export function startApp(root: HTMLElement): void {
   const actions: GameActions = {
     placePiece(index) {
       if (online) { void submit({ type: 'place', index, upgraded: selectedUpgraded ?? defaultPieceUpgraded(game) }); return; }
+      if (computer && actingPlayer(game) === 1) return;
       const next = place(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
       if (next === game) return;
       history.push(game);
@@ -173,17 +201,19 @@ export function startApp(root: HTMLElement): void {
     },
     chooseUpgrade(option) {
       if (online) { void submit({ type: 'choose', option }); return; }
+      if (computer && actingPlayer(game) === 1) return;
       game = chooseUpgrade(game, option);
       selectedUpgraded = null;
       render();
     },
     selectPiece(upgraded) {
-      if (!canAct()) return;
+      if (!canAct() || (computer && actingPlayer(game) === 1)) return;
       selectedUpgraded = upgraded;
       render();
     },
-    requestNewGame(mode = game.mode) {
+    requestNewGame(mode = game.mode, opponent = computer) {
       if (online) return;
+      pendingComputer = opponent;
       if (game.moves === 0) startNewGame(mode);
       else modals.confirmNewGame(mode);
     },
@@ -191,6 +221,7 @@ export function startApp(root: HTMLElement): void {
       if (online) return;
       const previous = history.pop();
       if (!previous) return;
+      cancelComputer();
       game = previous;
       selectedUpgraded = null;
       render();
@@ -218,7 +249,7 @@ export function startApp(root: HTMLElement): void {
     entry.hidden = true;
     root.classList.add('is-online');
     root.querySelector('#online-seat')!.textContent = 'Joining online game';
-    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], #restart, #undo')) button.disabled = true;
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #restart, #undo')) button.disabled = true;
     leaveButton.hidden = false;
     onlineStatus.textContent = 'Joining game…';
     let token: string | undefined;

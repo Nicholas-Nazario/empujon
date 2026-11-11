@@ -87,6 +87,110 @@ try {
   await evaluate(`document.querySelectorAll('[data-cell]')[${firstEmpty}].click()`);
   assert.equal(await evaluate(`!!document.querySelectorAll('[data-cell]')[${firstEmpty}].querySelector('.piece.upgraded')`),true);
   console.log('Upgrade selection: defaults to upgraded, honors base override, restores default after undo.');
+  await evaluate('document.querySelector("[data-mode=classic]").click(); document.querySelector("#confirm-new").click()');
+  // Classic Beginner: lock input, undo a whole turn, cancel pending replies,
+  // confirm/cancel opponent changes, and preserve Beginner when changing rules.
+  await evaluate('document.querySelector("[data-opponent=beginner]").click(); document.querySelector("#confirm-new").click()');
+  assert.equal(await evaluate('document.querySelector("#board-mode").textContent'), 'CLASSIC');
+  assert.match(await evaluate('document.querySelector("#players").textContent'), /BEGINNER AI/);
+  await evaluate('document.querySelectorAll("[data-cell]")[14].click()');
+  assert.equal(await evaluate('document.querySelectorAll("[data-cell]:not(:disabled)").length'), 0);
+  await evaluate('document.querySelector("#undo").click()');
+  await new Promise(r => setTimeout(r, 550));
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 01');
+  await evaluate('document.querySelectorAll("[data-cell]")[14].click()');
+  await new Promise(r => setTimeout(r, 550));
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 03');
+  assert.match(await evaluate('document.querySelector("#turn-title").textContent'), /Terracotta/);
+  await evaluate('document.querySelector("#undo").click()');
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 01');
+  await evaluate('document.querySelectorAll("[data-cell]")[14].click(); document.querySelector("[data-opponent=local]").click(); document.querySelector("#cancel-new").click()');
+  assert.equal(await evaluate('document.querySelector("[data-opponent=beginner]").getAttribute("aria-pressed")'), 'true');
+  await evaluate('document.querySelector("[data-mode=upgrade]").click(); document.querySelector("#confirm-new").click()');
+  await new Promise(r => setTimeout(r, 550));
+  assert.equal(await evaluate('document.querySelector("#move-count").textContent'), 'MOVE 01');
+  assert.equal(await evaluate('document.querySelector("[data-opponent=beginner]").getAttribute("aria-pressed")'), 'true');
+  await evaluate('document.querySelector("[data-opponent=beginner]").click()');
+  console.log('Beginner: automatic replies, input lock, full-turn undo, timer cancellation, opponent selection.');
+  const upgradePlay = await evaluate(`(async () => {
+    const { createGame } = await import('/src/game.ts');
+    const { actingPlayer, applyAction } = await import('/src/actions.ts');
+    const { beginnerAction } = await import('/src/ai.ts');
+    const originalRandom = Math.random;
+    const originalTimeout = window.setTimeout;
+    let actualSeed = 37, expectedSeed = 37, humanSeed = 87;
+    const nextRandom = seed => (Math.imul(seed, 1664525) + 1013904223) >>> 0;
+    Math.random = () => ((actualSeed = nextRandom(actualSeed)) / 2 ** 32);
+    const expectedRandom = () => ((expectedSeed = nextRandom(expectedSeed)) / 2 ** 32);
+    const humanRandom = () => ((humanSeed = nextRandom(humanSeed)) / 2 ** 32);
+    window.setTimeout = (callback, delay, ...args) => originalTimeout(callback, delay === 400 ? 0 : delay, ...args);
+    const wait = () => new Promise(resolve => originalTimeout(resolve, 10));
+    let humanChoices = 0, computerChoices = 0, crossTurnChoices = 0, upgradedPlacements = 0;
+    try {
+      for (let run = 0; run < 3; run++) {
+        document.querySelector('#restart').click();
+        if (document.querySelector('#new-game').open) document.querySelector('#confirm-new').click();
+        let game = createGame('upgrade');
+        for (let step = 0; step < 1000 && game.winner === null; step++) {
+          const actor = actingPlayer(game);
+          const action = beginnerAction(game, actor === 1 ? expectedRandom : humanRandom);
+          if (action.type === 'choose') {
+            if (actor === 1) computerChoices++; else humanChoices++;
+            if (actor !== game.turn) crossTurnChoices++;
+          } else if (action.upgraded) upgradedPlacements++;
+          if (actor === 0) {
+            if (action.type === 'choose') {
+              const button = document.querySelector('[data-choice="' + action.option + '"]');
+              if (!button || button.disabled) throw new Error('Human reward choice unavailable');
+              button.click();
+            } else {
+              const picker = document.querySelector('[data-piece=' + (action.upgraded ? 'upgraded' : 'base') + ']');
+              if (!picker || picker.disabled) throw new Error('Human piece picker unavailable');
+              picker.click();
+              document.querySelectorAll('[data-cell]')[action.index].click();
+            }
+          } else {
+            if (document.querySelectorAll('[data-choice]:not(:disabled), [data-piece]').length) {
+              throw new Error('Computer controls exposed to human');
+            }
+          }
+          game = applyAction(game, action);
+          // Wait until the board and decision state reflect the action. A computer
+          // reward may schedule its next placement immediately afterward.
+          if (actor === 1) await wait();
+          // Let consecutive AI decisions settle before comparing the UI.
+          while (actingPlayer(game) === 1) {
+            const reply = beginnerAction(game, expectedRandom);
+            if (reply.type === 'choose') {
+              computerChoices++;
+              if (game.turn !== 1) crossTurnChoices++;
+            } else if (reply.upgraded) upgradedPlacements++;
+            game = applyAction(game, reply);
+          }
+          if (actualSeed !== expectedSeed) {
+            for (let retry = 0; retry < 100 && actualSeed !== expectedSeed; retry++) await wait();
+          }
+          if (actualSeed !== expectedSeed) throw new Error('Computer did not resolve pending actions');
+          const cells = Array.from(document.querySelectorAll('[data-cell]')).map(cell => {
+            const piece = cell.querySelector(':scope > .piece');
+            return piece ? { owner: piece.classList.contains('p0') ? 0 : 1, upgraded: piece.classList.contains('upgraded') } : null;
+          });
+          if (JSON.stringify(cells) !== JSON.stringify(game.board)) throw new Error('UI differs from shared engine');
+        }
+        if (game.winner === null) throw new Error('Upgrade game did not finish');
+      }
+      return { humanChoices, computerChoices, crossTurnChoices, upgradedPlacements };
+    } finally {
+      Math.random = originalRandom;
+      window.setTimeout = originalTimeout;
+    }
+  })()`);
+  assert.ok(upgradePlay.humanChoices > 0, JSON.stringify(upgradePlay));
+  assert.ok(upgradePlay.computerChoices > 0, JSON.stringify(upgradePlay));
+  assert.ok(upgradePlay.crossTurnChoices > 0, JSON.stringify(upgradePlay));
+  assert.ok(upgradePlay.upgradedPlacements > 0, JSON.stringify(upgradePlay));
+  console.log('Upgrade Beginner: three complete games match engine, including human/computer rewards and cross-turn choices.', upgradePlay);
+
   for(const [label,width,height] of [['desktop',1440,1000],['mobile',390,844],['small-mobile',320,740],['tablet',768,1024]]) {
     await cmd('Emulation.setDeviceMetricsOverride',{width,height,deviceScaleFactor:1,mobile:width<700});
     await new Promise(r=>setTimeout(r,250));

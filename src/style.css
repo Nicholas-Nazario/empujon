@@ -82,3 +82,6 @@ button:disabled { cursor: default; }
 .is-online .session-section .goal-card { margin-top: 16px; padding-top: 14px; }
 .is-online .session-section .goal-card p { margin-bottom: 12px !important; }
 @media(max-width:650px) { .is-online .session-section .goal-card { display: none; } }
+.opponent-picker{display:flex;flex-direction:column;gap:8px;margin-top:20px}.opponent-picker .mode{font-size:12px;padding:12px}.opponent-picker p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.opponent-picker button{width:100%}
+
+.is-online .opponent-picker { display: none; }
