@@ -137,12 +137,23 @@ try {
     const { beginnerAction } = await import('/src/ai.ts');
     const originalRandom = Math.random;
     const originalTimeout = window.setTimeout;
+    const originalWorker = window.Worker;
     let actualSeed = 37, expectedSeed = 37, humanSeed = 87;
     const nextRandom = seed => (Math.imul(seed, 1664525) + 1013904223) >>> 0;
     Math.random = () => ((actualSeed = nextRandom(actualSeed)) / 2 ** 32);
     const expectedRandom = () => ((expectedSeed = nextRandom(expectedSeed)) / 2 ** 32);
     const humanRandom = () => ((humanSeed = nextRandom(humanSeed)) / 2 ** 32);
     window.setTimeout = (callback, delay, ...args) => originalTimeout(callback, delay === 400 ? 0 : delay, ...args);
+    // Keep seeded decisions in this realm; real workers have their own Math.random.
+    window.Worker = class {
+      terminated = false;
+      postMessage({ game }) {
+        originalTimeout(() => {
+          if (!this.terminated) this.onmessage({ data: beginnerAction(game) });
+        }, 0);
+      }
+      terminate() { this.terminated = true; }
+    };
     const wait = () => new Promise(resolve => originalTimeout(resolve, 10));
     let humanChoices = 0, computerChoices = 0, crossTurnChoices = 0, upgradedPlacements = 0;
     try {
@@ -197,11 +208,49 @@ try {
           if (JSON.stringify(cells) !== JSON.stringify(game.board)) throw new Error('UI differs from shared engine');
         }
         if (game.winner === null) throw new Error('Upgrade game did not finish');
+        const result = document.querySelector('#new-game');
+        if (result.open) throw new Error('Result covered the board before the reading pause');
+        const winning = [...document.querySelectorAll('.winning')];
+        if (winning.length && winning.some((cell, index) => Number(cell.style.getPropertyValue('--win-order')) !== index)) {
+          // DOM order can differ from diagonal line order; each count must still be unique.
+          const counts = winning.map(cell => Number(cell.style.getPropertyValue('--win-order'))).sort((a, b) => a - b);
+          if (counts.some((count, index) => count !== index)) throw new Error('Winning animation order is incomplete');
+        }
+        await new Promise(resolve => originalTimeout(resolve, 2150));
+        if (!result.open) throw new Error('Game result did not open');
+        const heading = document.querySelector('#new-game-title').textContent;
+        if (heading !== (game.winner === 0 ? 'Congratulations! You won!' : 'Better luck next time!')) {
+          throw new Error('Result does not reflect the human player');
+        }
+        // Leave the final result visible for the responsive screenshots below.
+        if (run === 2) continue;
+        if (run === 0) {
+          document.querySelector('#confirm-new').click();
+          if (result.open || document.querySelector('#move-count').textContent !== 'MOVE 01'
+            || document.querySelector('[data-opponent=beginner]').getAttribute('aria-pressed') !== 'true') {
+            throw new Error('Result restart did not reset the game and preserve the opponent');
+          }
+          continue;
+        }
+        const finalBoard = document.querySelector('#board').innerHTML;
+        document.querySelector('#cancel-new').click();
+        if (result.open || document.querySelector('#board').innerHTML !== finalBoard) {
+          throw new Error('View board changed the final position');
+        }
+        document.querySelector('[data-piece]')?.click();
+        if (result.open) throw new Error('Dismissed result reopened');
+        document.querySelector('#restart').click();
+        if (document.querySelector('#new-game-title').textContent !== 'Start a new game?'
+          || document.querySelector('#cancel-new').textContent !== 'Keep playing') {
+          throw new Error('Restart did not restore confirmation copy');
+        }
+        document.querySelector('#cancel-new').click();
       }
       return { humanChoices, computerChoices, crossTurnChoices, upgradedPlacements };
     } finally {
       Math.random = originalRandom;
       window.setTimeout = originalTimeout;
+      window.Worker = originalWorker;
     }
   })()`);
   assert.ok(upgradePlay.humanChoices > 0, JSON.stringify(upgradePlay));
@@ -216,9 +265,19 @@ try {
     const layout = await evaluate('({width:innerWidth,scroll:document.documentElement.scrollWidth,board:document.querySelector("#board").getBoundingClientRect().toJSON()})');
     assert.ok(layout.scroll<=width,`${label} overflows: ${JSON.stringify(layout)}`);
     assert.ok(Math.abs(layout.board.width-layout.board.height)<2);
+    const dialog = await evaluate('document.querySelector("#new-game").getBoundingClientRect().toJSON()');
+    assert.ok(dialog.left >= 0 && dialog.right <= width && dialog.top >= 0 && dialog.bottom <= height,
+      `${label} result dialog clips: ${JSON.stringify(dialog)}`);
     const shot=await cmd('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
     await writeFile(`${tmpdir()}/empujon-${label}-verified.png`,Buffer.from(shot.data,'base64'));
+    await evaluate('document.querySelector("#cancel-new").click()');
+    const boardShot = await cmd('Page.captureScreenshot',{format:'png',captureBeyondViewport:true});
+    await writeFile(`${tmpdir()}/empujon-${label}-winning-board.png`,Buffer.from(boardShot.data,'base64'));
+    await evaluate('document.querySelector("#new-game").showModal()');
     console.log(`${label}: no horizontal overflow, square board (${Math.round(layout.board.width)}px)`);
   }
+  await cmd('Emulation.setEmulatedMedia', { features: [{ name: 'prefers-reduced-motion', value: 'reduce' }] });
+  assert.equal(await evaluate('getComputedStyle(document.querySelector("#new-game")).animationName'), 'none');
+  assert.ok(await evaluate('[...document.querySelectorAll(".winning > .piece, .winning")].every(element => getComputedStyle(element).animationName === "none")'));
   console.log('Browser checks passed: placement, turns, undo, mode selection, rules dialog, restart/cancel, responsive layouts.');
 } finally { ws?.close(); chrome.kill(); }

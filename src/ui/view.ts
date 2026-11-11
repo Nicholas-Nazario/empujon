@@ -15,6 +15,8 @@ export type ViewState = {
   computer: Difficulty | null;
 };
 
+const boardMarkup = new WeakMap<HTMLElement, string>();
+
 /** Updates presentation only. Event listeners are installed separately, once. */
 export function renderGame(layout: Layout, state: ViewState): void {
   const { game, selectedUpgraded } = state;
@@ -50,7 +52,12 @@ export function renderGame(layout: Layout, state: ViewState): void {
     button.classList.toggle('active', isSelected);
     button.setAttribute('aria-pressed', String(isSelected));
   }
-  layout.board.innerHTML = renderBoard(game, selectedUpgraded, thinking);
+  const boardHtml = renderBoard(game, selectedUpgraded, thinking);
+  // Online status updates should not restart the winning-line animation.
+  if (game.winner === null || boardMarkup.get(layout.board) !== boardHtml) {
+    layout.board.innerHTML = boardHtml;
+    boardMarkup.set(layout.board, boardHtml);
+  }
   layout.choices.innerHTML = renderUpgradeChoices(game, thinking);
   layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
   layout.undoButton.disabled = !state.canUndo;
