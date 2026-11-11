@@ -1,3 +1,4 @@
+import { difficultyNames, type Difficulty } from '../ai.ts';
 import { renderIcon } from './icons.ts';
 import { actingPlayer } from '../actions.ts';
 import { names, type Game } from '../game.ts';
@@ -11,7 +12,7 @@ export type ViewState = {
   selectedUpgraded: boolean;
   canUndo: boolean;
   soundEnabled: boolean;
-  computer: boolean;
+  computer: Difficulty | null;
 };
 
 /** Updates presentation only. Event listeners are installed separately, once. */
@@ -28,13 +29,13 @@ export function renderGame(layout: Layout, state: ViewState): void {
   layout.playPanel.className = `play-panel color-${activePlayer}`;
   layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
   layout.boardMode.textContent = game.mode.toUpperCase();
-  const thinking = state.computer && actingPlayer(game) === 1;
-  layout.status.textContent = thinking ? (choice ? 'Beginner is choosing an upgrade…' : 'Beginner is choosing a move…') : game.message;
+  const thinking = !!state.computer && actingPlayer(game) === 1;
+  layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
   layout.opponentNote.textContent = state.computer
-    ? 'You’re Terracotta. Your robot rival plays Indigo and is learning the ropes.'
+    ? `You’re Terracotta. ${difficultyNames[state.computer]} plays Indigo.`
     : 'Share a screen. Trade little pushes.';
   for (const button of layout.opponentButtons) {
-    const selected = (button.dataset.opponent === 'beginner') === state.computer;
+    const selected = button.dataset.opponent === (state.computer ?? 'local');
     button.classList.toggle('active', selected);
     button.setAttribute('aria-pressed', String(selected));
   }
