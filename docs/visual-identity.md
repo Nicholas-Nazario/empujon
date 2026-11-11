@@ -133,3 +133,8 @@ changing game-state styling, also inspect both players' turns, upgrades, hover
 and focus, choices, and wins. Use the existing browser checks where applicable.
 
 Update this document when an intentional design decision changes these rules.
+
+On mobile, keep setup inside a collapsed Game settings disclosure with the current rules and opponent in its summary. Expanded opponent choices use two columns; desktop keeps setup expanded.
+
+On mobile, place the player piece trackers below the board and upgrade choices, above sound, annotations, and other board controls.
+
