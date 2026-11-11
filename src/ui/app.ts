@@ -1,4 +1,6 @@
 import { createGame, place, chooseUpgrade, defaultPieceUpgraded, type Game, type Mode } from '../game.ts';
+import { beginnerAction } from '../ai.ts';
+import { actingPlayer, applyAction } from '../actions.ts';
 import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
 import { mountLayout } from './layout.ts';
@@ -14,16 +16,39 @@ export function startApp(root: HTMLElement): void {
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
+  let computer = false;
+  let pendingComputer = false;
+  let computerTimer: ReturnType<typeof setTimeout> | undefined;
+
+  function cancelComputer(): void {
+    clearTimeout(computerTimer);
+    computerTimer = undefined;
+  }
+
+  function scheduleComputer(): void {
+    if (!computer || actingPlayer(game) !== 1 || computerTimer !== undefined) return;
+    computerTimer = setTimeout(() => {
+      computerTimer = undefined;
+      const action = beginnerAction(game);
+      if (!action) return;
+      game = applyAction(game, action);
+      if (soundEnabled) moveSound.play();
+      render();
+    }, 400);
+  }
 
   function render(): void {
     const supply = game.pools[game.turn];
     if (selectedUpgraded !== null && !supply.some(piece => piece.upgraded === selectedUpgraded)) {
       selectedUpgraded = null;
     }
-    renderGame(layout, { game, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: history.length > 0, soundEnabled });
+    renderGame(layout, { game, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: history.length > 0, soundEnabled, computer });
+    scheduleComputer();
   }
 
   function startNewGame(mode: Mode): void {
+    cancelComputer();
+    computer = pendingComputer;
     game = createGame(mode);
     history = [];
     selectedUpgraded = null;
@@ -33,6 +58,7 @@ export function startApp(root: HTMLElement): void {
   const modals = createModals(layout, startNewGame);
   const actions: GameActions = {
     placePiece(index) {
+      if (computer && actingPlayer(game) === 1) return;
       const next = place(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
       if (next === game) return;
       history.push(game);
@@ -42,21 +68,25 @@ export function startApp(root: HTMLElement): void {
       render();
     },
     chooseUpgrade(option) {
+      if (computer && actingPlayer(game) === 1) return;
       game = chooseUpgrade(game, option);
       selectedUpgraded = null;
       render();
     },
     selectPiece(upgraded) {
+      if (computer && actingPlayer(game) === 1) return;
       selectedUpgraded = upgraded;
       render();
     },
-    requestNewGame(mode = game.mode) {
+    requestNewGame(mode = game.mode, opponent = computer) {
+      pendingComputer = opponent;
       if (game.moves === 0) startNewGame(mode);
       else modals.confirmNewGame(mode);
     },
     undoMove() {
       const previous = history.pop();
       if (!previous) return;
+      cancelComputer();
       game = previous;
       selectedUpgraded = null;
       render();

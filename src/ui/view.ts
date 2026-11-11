@@ -1,3 +1,4 @@
+import { actingPlayer } from '../actions.ts';
 import { names, type Game } from '../game.ts';
 import type { Layout } from './layout.ts';
 import { renderBoard, renderUpgradeChoices } from './components/board.ts';
@@ -9,6 +10,7 @@ export type ViewState = {
   selectedUpgraded: boolean;
   canUndo: boolean;
   soundEnabled: boolean;
+  computer: boolean;
 };
 
 /** Updates presentation only. Event listeners are installed separately, once. */
@@ -24,7 +26,16 @@ export function renderGame(layout: Layout, state: ViewState): void {
   layout.boardHeading.className = `board-heading color-${activePlayer}`;
   layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
   layout.boardMode.textContent = game.mode.toUpperCase();
-  layout.status.textContent = game.message;
+  const thinking = state.computer && actingPlayer(game) === 1;
+  layout.status.textContent = thinking ? (choice ? 'Beginner is choosing an upgrade…' : 'Beginner is choosing a move…') : game.message;
+  layout.opponentNote.textContent = state.computer
+    ? 'You are Terracotta. Beginner plays Indigo. Builds lines, keeps pieces in play, and earns upgrades.'
+    : 'Take turns on this device, or play Beginner in either mode.';
+  for (const button of layout.opponentButtons) {
+    const selected = (button.dataset.opponent === 'beginner') === state.computer;
+    button.classList.toggle('active', selected);
+    button.setAttribute('aria-pressed', String(selected));
+  }
   layout.goal.textContent = game.mode === 'classic'
     ? 'Line up three of your pieces, or get all eight onto the board.'
     : 'Line up three upgraded pieces, or get all eight upgraded pieces onto the board.';
@@ -36,9 +47,9 @@ export function renderGame(layout: Layout, state: ViewState): void {
     button.classList.toggle('active', isSelected);
     button.setAttribute('aria-pressed', String(isSelected));
   }
-  layout.board.innerHTML = renderBoard(game, selectedUpgraded);
-  layout.choices.innerHTML = renderUpgradeChoices(game);
-  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded);
+  layout.board.innerHTML = renderBoard(game, selectedUpgraded, thinking);
+  layout.choices.innerHTML = renderUpgradeChoices(game, thinking);
+  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);
 }

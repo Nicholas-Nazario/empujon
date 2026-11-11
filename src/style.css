@@ -6,3 +6,5 @@
 @media(prefers-reduced-motion:no-preference){.cell .piece{animation:arrive .16s ease-out}@keyframes arrive{from{transform:scale(.88);opacity:.8}to{transform:scale(1);opacity:1}}}
 @media(min-width:1051px){main,.topbar{max-width:1280px}.intro{padding-top:32px;padding-bottom:29px}h1{font-size:39px}.game-layout{gap:28px}.board-frame{padding-left:20px;padding-right:20px}}
 .mini-line .piece.upgraded{font-size:10px;outline-width:1px;outline-offset:-3px}
+
+.opponent-picker{display:flex;flex-direction:column;gap:8px;margin-top:20px}.opponent-picker .mode{font-size:12px;padding:12px}.opponent-picker p{font-size:11px;line-height:1.6;color:var(--muted);margin:0}.opponent-picker button{width:100%}
