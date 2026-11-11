@@ -5,7 +5,7 @@ export type GameActions = {
   placePiece(index: number): void;
   chooseUpgrade(option: number): void;
   selectPiece(upgraded: boolean): void;
-  requestNewGame(mode?: Mode): void;
+  requestNewGame(mode?: Mode, computer?: boolean): void;
   undoMove(): void;
   toggleSound(): void;
   previewChoice(option: number | null): void;
@@ -49,6 +49,9 @@ export function bindGameEvents(layout: Layout, actions: GameActions): void {
       const mode = button.dataset.mode;
       if (mode === 'classic' || mode === 'upgrade') actions.requestNewGame(mode);
     });
+  }
+  for (const button of layout.opponentButtons) {
+    button.addEventListener('click', () => actions.requestNewGame(undefined, button.dataset.opponent === 'beginner'));
   }
   layout.restartButton.addEventListener('click', () => actions.requestNewGame());
   layout.undoButton.addEventListener('click', actions.undoMove);

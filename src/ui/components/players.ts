@@ -11,7 +11,7 @@ function renderPiecePicker(baseCount: number, upgradedCount: number, selectedUpg
     </div>`;
 }
 
-function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean): string {
+function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean, computer: boolean): string {
   const supply = game.pools[owner];
   const onBoard = game.board.filter(piece => piece?.owner === owner).length;
   const upgradedInSupply = supply.filter(piece => piece.upgraded).length;
@@ -20,7 +20,7 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
   const badge = isActive
     ? `<span class="turn-badge">${game.winner !== null ? 'WINNER' : 'TO PLAY'}</span>`
     : '';
-  const canSelectPiece = game.mode === 'upgrade' && owner === game.turn
+  const canSelectPiece = !(computer && owner === 1) && game.mode === 'upgrade' && owner === game.turn
     && !game.choices.length && game.winner === null;
   const supplyPieces = supply.map(piece => renderPiece(owner, piece.upgraded)).join('');
   const placeholders = Array.from({ length: onBoard }, () => '<span class="empty-piece"></span>').join('');
@@ -29,7 +29,7 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
     <section class="player-card ${isActive ? 'current' : ''} color-${owner}">
       <div class="player-title">
         ${renderPiece(owner)}
-        <div><span class="tiny-label">PLAYER ${owner + 1}</span><h3>${names[owner]}</h3></div>
+        <div><span class="tiny-label">${computer ? (owner === 0 ? 'YOU' : 'BEGINNER AI') : `PLAYER ${owner + 1}`} </span><h3>${names[owner]}</h3></div>
         ${badge}
       </div>
       <div class="player-stats"><span>On the board</span><strong>${onBoard}<span> / 8</span></strong></div>
@@ -41,6 +41,6 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
     </section>`;
 }
 
-export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean): string {
-  return ([0, 1] as const).map(owner => renderPlayer(game, owner, activePlayer, selectedUpgraded)).join('');
+export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean, computer = false): string {
+  return ([0, 1] as const).map(owner => renderPlayer(game, owner, activePlayer, selectedUpgraded, computer)).join('');
 }

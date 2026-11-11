@@ -23,6 +23,8 @@ export function mountLayout(root: HTMLElement) {
     choices: requireElement(root, '#choices'),
     players: requireElement(root, '#players'),
     modeButtons: Array.from(root.querySelectorAll<HTMLButtonElement>('[data-mode]')),
+    opponentButtons: Array.from(root.querySelectorAll<HTMLButtonElement>('[data-opponent]')),
+    opponentNote: requireElement(root, '#opponent-note'),
     undoButton: requireElement<HTMLButtonElement>(root, '#undo'),
     soundButton: requireElement<HTMLButtonElement>(root, '#sound'),
     restartButton: requireElement<HTMLButtonElement>(root, '#restart'),

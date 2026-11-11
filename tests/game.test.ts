@@ -158,3 +158,20 @@ test('upgraded is the default when available, with an explicit base override', (
   assert.equal(g.board[14],null);
   assert.equal(defaultPieceUpgraded(createGame('classic')),false);
 });
+
+test('top-row B1-C1-D1 wins only when C1 is pushed into place from below', () => {
+  const direct = place(setup('classic', [[1,1],[3,1]], 1), 2);
+  assert.equal(direct.board[0]?.owner, 1);
+  assert.equal(direct.board[4]?.owner, 1);
+  assert.equal(direct.board[1], null);
+  assert.equal(direct.board[3], null);
+  assert.equal(direct.winner, null);
+
+  const pushed = place(setup('classic', [[1,1],[8,1],[3,1]], 1), 14);
+  assert.deepEqual(pushed.board.slice(1,4).map(piece => piece?.owner), [1,1,1]);
+  assert.equal(pushed.board[8], null);
+  assert.equal(pushed.last, 14);
+  assert.equal(pushed.winner, 1);
+  conserved(direct);
+  conserved(pushed);
+});
