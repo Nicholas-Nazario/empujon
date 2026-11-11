@@ -6,6 +6,7 @@ export type Push = { owner: Player; from: number; to: number | null; dr: number;
 export type Movement = { owner: Player; placement: number; pushes: Push[] };
 export type Game = {
   lastMovement?: Movement;
+  upgradeReturns?: { index: number; piece: Piece }[][];
   mode: Mode; board: (Piece | null)[]; turn: Player;
   pools: [Piece[], Piece[]]; winner: Player | null; reason: string;
   choices: Choice[]; moves: number; last: number | null; message: string; rewards: string[];
@@ -54,6 +55,7 @@ function finish(g: Game) {
   g.message = `${g.rewards.join(' ')} ${names[g.turn]}'s turn. Place a piece to push its neighbors.`.trim();
 }
 function applyChoice(g: Game, choice: Choice, cells: number[]) {
+  if (cells.length === 3) (g.upgradeReturns ??= []).push(cells.map(index => ({ index, piece: { ...g.board[index]! } })));
   const upgraded = cells.filter(i => !g.board[i]?.upgraded).length;
   g.rewards.push(`${names[choice.owner]} returned ${cells.length} ${cells.length === 1 ? "piece" : "pieces"} to supply${upgraded ? `, upgrading ${upgraded}` : ""}.`);
   for (const i of cells) {
@@ -72,6 +74,7 @@ function processChoices(g: Game) {
 export function chooseUpgrade(game: Game, option: number): Game {
   const g = structuredClone(game), choice = g.choices[0];
   if (!choice || !choice.options[option]) return game;
+  g.upgradeReturns = [];
   g.choices.shift(); applyChoice(g, choice, choice.options[option]); processChoices(g); return g;
 }
 /** Prefer stronger pieces when the caller has not explicitly selected a type. */
@@ -108,6 +111,7 @@ export function place(game: Game, index: number, upgraded = defaultPieceUpgraded
   if (supplyIndex < 0) return game;
   const g = structuredClone(game);
   g.rewards = [];
+  g.upgradeReturns = [];
   g.board[index] = g.pools[g.turn].splice(supplyIndex,1)[0];
   const movement = previewMovement(game, index, upgraded)!;
   for (const { from, to } of movement.pushes) {

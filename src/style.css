@@ -205,7 +205,7 @@ body {
 .last:after { background: var(--last-background); }
 .winning { background: var(--winning-background) !important; }
 @media (prefers-reduced-motion: no-preference) {
-  .cell.winning > .piece { animation: win-piece .55s ease-in-out both; animation-delay: calc(150ms + var(--win-order) * 300ms); }
+  .cell.winning > .piece, .cell.upgrading > .piece { animation: win-piece .55s ease-in-out both; animation-delay: calc(150ms + var(--win-order) * 300ms); }
   dialog.game-result[open], dialog.game-result[open]::backdrop { animation: result-fade-in .45s ease-out both; }
   @keyframes win-piece { 0%, 100% { transform: scale(1); } 45% { transform: scale(1.12); } }
   @keyframes result-fade-in { from { opacity: 0; } to { opacity: 1; } }

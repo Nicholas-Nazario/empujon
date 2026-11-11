@@ -16,6 +16,10 @@ export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
   const sounds = createGameSound();
   let game = createGame('classic');
+  let upgradeUntil = 0;
+  let upgradeKey = '';
+  let upgradeTimer: ReturnType<typeof setTimeout> | undefined;
+
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
@@ -92,7 +96,7 @@ export function startApp(root: HTMLElement): void {
       computerWorker.onmessage = (event: MessageEvent<Action | null>) => finishComputer(event.data);
       computerWorker.onerror = () => finishComputer(beginnerAction(game));
       computerWorker.postMessage({ game, difficulty: computer });
-    }, 400);
+    }, Math.max(400, upgradeUntil - Date.now() + 100));
   }
 
   let online: OnlineState | null = null;
@@ -188,11 +192,29 @@ export function startApp(root: HTMLElement): void {
   root.querySelector('#copy-invite')!.addEventListener('click', () => { void copyInvite(true); });
 
   function render(): void {
+    const key = JSON.stringify([game.moves, game.board, game.upgradeReturns]);
+    if (key !== upgradeKey) {
+      upgradeKey = key;
+      clearTimeout(upgradeTimer);
+      const count = game.upgradeReturns?.flat().length ?? 0;
+      upgradeUntil = count ? Date.now() + (matchMedia('(prefers-reduced-motion: reduce)').matches ? 900 : 150 + (count - 1) * 300 + 550) : 0;
+      if (count) upgradeTimer = setTimeout(render, upgradeUntil - Date.now() + 20);
+    }
+    const returning = Date.now() < upgradeUntil ? game.upgradeReturns?.flat() ?? [] : [];
+    const displayGame = returning.length ? { ...game, board: [...game.board] } : game;
+    for (const { index, piece } of returning) displayGame.board[index] = piece;
+
     const supply = game.pools[game.turn];
     if (selectedUpgraded !== null && !supply.some(piece => piece.upgraded === selectedUpgraded)) {
       selectedUpgraded = null;
     }
-    renderGame(layout, { game, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
+    renderGame(layout, { game: displayGame, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
+    returning.forEach(({ index }, order) => {
+      const cell = layout.board.querySelector<HTMLElement>(`[data-cell="${index}"]`);
+      cell?.classList.add('upgrading');
+      cell?.style.setProperty('--win-order', String(order));
+    });
+    if (returning.length) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
     hostButton.disabled = !!online;
     turnLimit.disabled = !!online;
     leaveButton.hidden = !online;
@@ -263,6 +285,7 @@ export function startApp(root: HTMLElement): void {
   const modals = createModals(layout, startNewGame);
   const actions: GameActions = {
     placePiece(index) {
+      if (Date.now() < upgradeUntil) return;
       if (touchPreview) { showMovement(index); return; }
       touchPreview = false;
       if (online) { void submit({ type: 'place', index, upgraded: selectedUpgraded ?? defaultPieceUpgraded(game) }); return; }
@@ -276,6 +299,7 @@ export function startApp(root: HTMLElement): void {
       render();
     },
     chooseUpgrade(option) {
+      if (Date.now() < upgradeUntil) return;
       if (online) { void submit({ type: 'choose', option }); return; }
       if (computer && actingPlayer(game) === 1) return;
       const next = chooseUpgrade(game, option);

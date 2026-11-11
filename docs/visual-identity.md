@@ -73,6 +73,7 @@ player colors.
   the turn heading and name the player who placed the piece. Place the
   annotation toggle in the action bar alongside sound, undo, and new game.
   Keep preview text below the board. Touch users preview first and confirm with a labeled button.
+- Upgrade triples pulse in order using the winning-piece animation, without a green cell fill, before returning to supply. Keep them visible briefly with reduced motion and pause board input during the indication.
 - Winning lines use a stronger green cell fill.
   Count across the winning pieces with one staggered pulse, then wait two
   seconds from the finish before fading in the result dialog. Reduced-motion

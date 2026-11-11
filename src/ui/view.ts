@@ -54,7 +54,7 @@ export function renderGame(layout: Layout, state: ViewState): void {
   }
   const boardHtml = renderBoard(game, selectedUpgraded, thinking);
   // Online status updates should not restart the winning-line animation.
-  if (game.winner === null || boardMarkup.get(layout.board) !== boardHtml) {
+  if (boardMarkup.get(layout.board) !== boardHtml) {
     layout.board.innerHTML = boardHtml;
     boardMarkup.set(layout.board, boardHtml);
   }
