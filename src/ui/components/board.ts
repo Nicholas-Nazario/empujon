@@ -12,11 +12,12 @@ export function renderBoard(game: Game, selectedUpgraded: boolean, locked = fals
     const winOrder = winningCells.indexOf(index);
     if (index === game.last) classes.push('last');
     if (winningCells.includes(index)) classes.push('winning');
-    if (choice?.options.some(option => option.includes(index))) classes.push('eligible');
+    const eligible = choice?.options.some(option => option.includes(index)) ?? false;
+    if (eligible) classes.push('eligible');
     const description = piece
       ? `${names[piece.owner]} ${piece.upgraded ? 'upgraded' : 'base'} piece`
       : 'empty';
-    const disabled = locked || piece !== null || choice !== undefined || game.winner !== null;
+    const disabled = locked || game.winner !== null || (choice ? !eligible : piece !== null || choice !== undefined);
     const content = piece
       ? renderPiece(piece.owner, piece.upgraded)
       : `<span class="ghost">${renderPiece(game.turn, selectedUpgraded)}</span>`;
@@ -24,23 +25,11 @@ export function renderBoard(game: Game, selectedUpgraded: boolean, locked = fals
     return `
       <button class="${classes.join(' ')}" data-cell="${index}"
         ${winOrder >= 0 ? `style="--win-order: ${winOrder}"` : ''}
-        aria-label="${coordinate(index)}, ${description}${winOrder >= 0 ? ', winning line' : ''}" ${disabled ? 'disabled' : ''}>
+        ${eligible && choice !== undefined ? 'aria-pressed="false" aria-describedby="movement-description"' : ''}
+        aria-label="${coordinate(index)}, ${description}${eligible && choice !== undefined ? ', select pieces to upgrade' : ''}${winOrder >= 0 ? ', winning line' : ''}" ${disabled ? 'disabled' : ''}>
         ${content}
       </button>`;
   }).join('');
-}
-
-export function renderUpgradeChoices(game: Game, locked = false): string {
-  const choice = game.choices[0];
-  if (!choice) return '';
-  const instruction = choice.kind === 'line'
-    ? 'Choose a triple to return upgraded:'
-    : 'Choose a base piece to return upgraded:';
-  const buttons = choice.options.map((cells, option) => `
-    <button class="choice-button" data-choice="${option}" ${locked ? 'disabled' : ''}>
-      ${cells.map(coordinate).join(' · ')}
-    </button>`).join('');
-  return `<span class="choice-instruction">${instruction}</span>${buttons}`;
 }
 
 export function highlightChoice(board: HTMLElement, cells: number[]): void {

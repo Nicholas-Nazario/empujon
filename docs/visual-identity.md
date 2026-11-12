@@ -72,8 +72,9 @@ player colors.
   Default annotations to off. Keep the last-move description visible inside
   the turn heading and name the player who placed the piece. Place the
   annotation toggle in the action bar alongside sound, undo, and new game.
-  Keep preview text below the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
+  Keep preview text in the information panel above the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
 - Placements settle with a small scale motion; pushed pieces slide together one square after a brief contact beat. Off-board pieces shrink and fade as they leave the grid, followed by one subtle pulse on each receiving supply. A soft descending return sound follows the push sound when sound is enabled. Keep stationary pieces still, pause piece input during movement, and finish slides before upgrade or win pulses. Reduced-motion users see the final positions immediately.
+- Upgrade selection takes over the existing fixed-height turn tracker without shifting the board. Tap eligible pieces to preview a triple; repeat taps on a shared piece cycle through its triples. Highlight all selected pieces together and confirm with a full-width gold “Confirm upgrade” action inside the tracker. Once selected, explicitly instruct the player to confirm; give the action one restrained pulse, respecting reduced motion. Keep all upgrade interactions on the board and tracker, with no option buttons below the board. Pulse eligible pieces once, respecting reduced motion. Single-piece returns use the same interaction.
 - Upgrade triples pulse in order using the winning-piece animation, without a green cell fill, before returning to supply. Keep them visible briefly with reduced motion and pause board input during the indication.
 - Winning lines use a stronger green cell fill.
   Count across the winning pieces with one staggered pulse, then wait two
@@ -172,3 +173,17 @@ Use the same neutral stucco surfaces and Phosphor icons in both appearances.
 New game starts a fresh timeline. Online timelines last for the session and
 survive reconnection; sessions created before history was recorded can only
 show their available positions.
+
+## Board information component
+
+`src/ui/components/board-information.ts` owns the single changing information
+panel above the board, with its markup in `src/ui/templates/board-information.html`.
+Use three consistently sized slots: heading and move count, move details and
+status, then actions. Reserve the action space even when idle. Upgrade selection
+and confirmation, optional touch-preview placement, and review navigation share
+that slot; none add a new row or panel. Preview text replaces the last-move
+description within the details slot. Keep local, CPU, online, win, and review
+states within the same footprint at each screen size, so the board stays in place.
+Long descriptions use the reserved lines, with full text available to assistive
+technology and on hover. Online identity stays in the session banner; changing
+connection and turn information belongs in the board information panel.

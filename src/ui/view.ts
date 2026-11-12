@@ -3,7 +3,7 @@ import { renderIcon } from './icons.ts';
 import { actingPlayer } from '../actions.ts';
 import { names, type Game } from '../game.ts';
 import type { Layout } from './layout.ts';
-import { renderBoard, renderUpgradeChoices } from './components/board.ts';
+import { renderBoard } from './components/board.ts';
 import { renderPlayers } from './components/players.ts';
 import { renderPiece } from './components/piece.ts';
 
@@ -24,18 +24,10 @@ export function renderGame(layout: Layout, state: ViewState): void {
   const { game, selectedUpgraded } = state;
   const choice = game.choices[0];
   const activePlayer = game.winner ?? choice?.owner ?? game.turn;
-  const playerName = names[activePlayer];
 
-  layout.turnTitle.textContent = game.winner !== null
-    ? `${playerName} wins`
-    : choice ? `${playerName} · choose an upgrade` : `${playerName}'s turn`;
-  layout.boardHeading.className = `board-heading color-${activePlayer}`;
   layout.playPanel.className = `play-panel color-${activePlayer}`;
-  layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
-  layout.moveCount.hidden = !!state.reviewing;
   layout.boardMode.textContent = game.mode.toUpperCase();
   const thinking = !state.reviewing && !!state.computer && actingPlayer(game) === 1;
-  layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
   layout.opponentNote.textContent = state.computer
     ? `You’re ${names[0]}. ${difficultyNames[state.computer]} plays ${names[1]}.`
     : 'Share a screen. Trade little pushes.';
@@ -61,16 +53,8 @@ export function renderGame(layout: Layout, state: ViewState): void {
     layout.board.innerHTML = boardHtml;
     boardMarkup.set(layout.board, boardHtml);
   }
-  layout.choices.innerHTML = state.reviewing ? '' : renderUpgradeChoices(game, thinking || state.locked);
+  layout.choices.replaceChildren();
   layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer, state.reviewing);
-  if (state.reviewing) {
-    layout.turnTitle.textContent = game.winner !== null ? `${playerName} wins · Review` : 'Game review';
-    layout.moveCount.textContent = `MOVE ${String(game.moves).padStart(2, '0')}`;
-    layout.status.textContent = game.moves === 0 ? 'Starting position. Terracotta opens.'
-      : game.winner !== null ? game.message
-      : game.choices.length ? `${names[game.choices[0].owner]} has an upgrade decision.`
-      : `Position after move ${game.moves}. ${game.rewards.join(' ')}`.trim();
-  }
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);
 }

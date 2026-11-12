@@ -106,10 +106,19 @@ try {
   const local = await tab(baseUrl);
   await until(local, '!!document.querySelector("#board .cell")');
   await local.evaluate('document.querySelectorAll("[data-cell]")[0].click(); document.querySelector("#undo").click(); document.querySelector("[data-mode=upgrade]").click()');
-  for (const action of upgrade.actions) {
+  for (const [actionIndex, action] of upgrade.actions.entries()) {
     await until(local, '!document.querySelector(".upgrading, .is-moving")');
+    assert.deepEqual((await snapshot(local)).board, upgrade.frames[actionIndex].board, `Before action ${actionIndex}: ${JSON.stringify(action)}`);
     await local.evaluate(action.type === 'choose'
-      ? `document.querySelector('[data-choice="${action.option}"]').click()`
+      ? `(() => {
+          const cells = ${JSON.stringify(upgrade.frames[actionIndex].choices[0].options[action.option])};
+          for (let attempt = 0; attempt < 20; attempt++) {
+            document.querySelector('[data-cell="' + cells[0] + '"]').click();
+            const selected = [...document.querySelectorAll('.choice-highlight')].map(cell => +cell.dataset.cell);
+            if (selected.length === cells.length && cells.every(cell => selected.includes(cell))) break;
+          }
+          document.querySelector('[data-confirm-upgrade]').click();
+        })()`
       : `document.querySelector('[data-piece="${action.upgraded ? 'upgraded' : 'base'}"]').click(); document.querySelector('[data-cell="${action.index}"]').click()`);
   }
   await reviewGame(local, upgrade.frames);

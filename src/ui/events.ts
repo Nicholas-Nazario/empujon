@@ -5,11 +5,11 @@ import type { Layout } from './layout.ts';
 export type GameActions = {
   placePiece(index: number): void;
   chooseUpgrade(option: number): void;
+  confirmTriple(): void;
   selectPiece(upgraded: boolean): void;
   requestNewGame(mode?: Mode, computer?: Difficulty | null): void;
   undoMove(): void;
   toggleSound(): void;
-  previewChoice(option: number | null): void;
 };
 
 function actionButton(event: Event, selector: string): HTMLButtonElement | null {
@@ -26,24 +26,10 @@ export function bindGameEvents(layout: Layout, actions: GameActions): void {
     const button = actionButton(event, '[data-piece]');
     if (button && !button.disabled) actions.selectPiece(button.dataset.piece === 'upgraded');
   });
-  layout.choices.addEventListener('click', event => {
-    const button = actionButton(event, '[data-choice]');
-    if (button) actions.chooseUpgrade(Number(button.dataset.choice));
+  layout.boardHeading.addEventListener('click', event => {
+    const confirm = actionButton(event, '[data-confirm-upgrade]');
+    if (confirm && !confirm.disabled) actions.confirmTriple();
   });
-
-  const previewChoice = (event: Event) => {
-    const button = actionButton(event, '[data-choice]');
-    if (button) actions.previewChoice(Number(button.dataset.choice));
-  };
-  const clearPreview = () => actions.previewChoice(null);
-  layout.choices.addEventListener('pointerover', previewChoice);
-  layout.choices.addEventListener('focusin', previewChoice);
-  layout.choices.addEventListener('pointerout', event => {
-    const button = actionButton(event, '[data-choice]');
-    if (event.relatedTarget instanceof Node && button?.contains(event.relatedTarget)) return;
-    clearPreview();
-  });
-  layout.choices.addEventListener('focusout', clearPreview);
 
   for (const button of layout.modeButtons) {
     button.addEventListener('click', () => {
