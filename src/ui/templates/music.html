@@ -1,0 +1,17 @@
+<section popover id="music-dialog" role="dialog" aria-labelledby="music-title" aria-describedby="music-intro">
+  <div class="dialog-top">
+    <p class="eyebrow">YOUR SOUNDTRACK</p>
+    <button class="icon-button" id="music-close" aria-label="Close music settings"><span data-icon="close"></span></button>
+  </div>
+  <h2 id="music-title">Background music</h2>
+  <p id="music-intro">All songs are included. Uncheck any you want to skip.</p>
+  <div class="music-playback">
+    <button class="primary-button" id="music-play" aria-pressed="false">Play music</button>
+    <button class="secondary-button" id="music-next" aria-label="Next track">Next</button>
+    <span id="music-status" role="status" aria-live="polite">Music is paused.</span>
+  </div>
+  <label class="music-volume" for="music-volume"><span>Music volume</span><output id="music-volume-value" for="music-volume">30%</output>
+    <input id="music-volume" type="range" min="0" max="100" step="1" value="30">
+  </label>
+  <fieldset class="music-tracks"><legend>Included tracks</legend><div id="music-tracks"></div></fieldset>
+</section>

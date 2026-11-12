@@ -5,13 +5,19 @@
     <span class="brand-dot"></span>
   </a>
   <div class="header-actions">
+    <button id="music-open" class="header-icon" type="button" popovertarget="music-dialog" aria-label="Music settings" aria-expanded="false" aria-controls="music-dialog"><span data-icon="music"></span></button>
     <button id="theme" type="button" role="switch" aria-label="Dark mode" aria-checked="false"><span data-icon="sun"></span></button>
-    <button class="text-button" id="rules-open">
-      How to play
+    <button class="text-button" id="rules-open" aria-label="How to play">
+      <span class="rules-label">How to play</span>
       <span data-icon="info"></span>
     </button>
   </div>
 </header>
+<div id="music-announcement" popover="manual" role="status" aria-live="polite" aria-atomic="true">
+  <span class="music-announcement-label">NOW PLAYING</span>
+  <strong id="music-announcement-title"></strong>
+  <span id="music-announcement-composer"></span>
+</div>
 <main>
   <section id="online-banner" class="online-banner" aria-label="Online game" hidden>
     <div class="online-identity">

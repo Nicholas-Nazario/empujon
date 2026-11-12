@@ -189,3 +189,17 @@ states within the same footprint at each screen size, so the board stays in plac
 Long descriptions use the reserved lines, with full text available to assistive
 technology and on hover. Online identity stays in the session banner; changing
 connection and turn information belongs in the board information panel.
+
+## Background music
+
+Music uses a header icon beside the theme toggle and opens a compact, nonmodal popover, dismissible by Escape or an outside tap. Keep it separate from game sounds. All tracks are included by default; persist explicit exclusions, and advance through included songs in order, wrapping at the end. Start
+paused and require a deliberate Play action; remember track and volume preferences.
+Keep track choices and full composer, license, and provider credits together in
+the music selection screen, with visibly linked attribution in each track’s expandable credits. Use the existing
+neutral surfaces, green controls, and responsive dialog styling.
+
+While music is playing, gently sway the header note icon. On a new track,
+briefly reveal its title and composer beside the icon, without shifting the
+header or board. Dismiss the announcement after about four seconds or on pause;
+replace it when another track starts. Reduced motion keeps the icon still and
+shows the same temporary announcement without movement or fading.
