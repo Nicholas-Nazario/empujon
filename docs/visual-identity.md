@@ -70,8 +70,7 @@ player colors.
   pushes keep the same neutral arrows and use a × in the pushed piece’s player color and an explicit return-to-supply description.
   The existing last-move dot identifies the placement; omit destination rings and placement outlines. The eye-icon toggle controls only board arrows and off-board marks.
   Default annotations to off. Keep the last-move description visible inside
-  the turn heading and name the player who placed the piece. Place the
-  annotation toggle in the action bar alongside sound, undo, and new game.
+  the turn heading and name the player who placed the piece. Keep annotations, sound effects, and touch preview together in the header preferences menu.
   Keep preview text in the information panel above the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
 - Placements settle with a small scale motion; pushed pieces slide together one square after a brief contact beat. Off-board pieces shrink and fade as they leave the grid, followed by one subtle pulse on each receiving supply. A soft descending return sound follows the push sound when sound is enabled. Keep stationary pieces still, pause piece input during movement, and finish slides before upgrade or win pulses. Reduced-motion users see the final positions immediately.
 - Upgrade selection takes over the existing fixed-height turn tracker without shifting the board. Tap eligible pieces to preview a triple; repeat taps on a shared piece cycle through its triples. Highlight all selected pieces together and confirm with a gold “Confirm upgrade” action inside the tracker. Once selected, explicitly instruct the player to confirm; give the action one restrained pulse, respecting reduced motion. Keep all upgrade interactions on the board and tracker, with no option buttons below the board. Pulse eligible pieces once, respecting reduced motion. Single-piece returns use the same interaction.
@@ -116,7 +115,7 @@ component text sizes; keep layout dimensions in `src/style.css`. Keep the serif'
 out of body copy and small labels. Preserve generous line height for rules and
 instructions, and check long labels after any typography change.
 
-Use the existing Phosphor icons with consistent footprints. Music, appearance,
+Use the existing Phosphor icons with consistent footprints. Game preferences, music, appearance,
 and How to play share the same bordered square header icon button, including
 size, surface, hover, and keyboard focus treatment. Keep accessible names and
 tooltips for icon-only controls.
@@ -141,7 +140,7 @@ Update this document when an intentional design decision changes these rules.
 
 On mobile, keep setup inside a collapsed Game settings disclosure with the current rules and opponent in its summary. Expanded opponent choices use two columns; desktop keeps setup expanded.
 
-On mobile, place the player piece trackers below the board and upgrade choices, above sound, annotations, and other board controls.
+On mobile, place the player piece trackers directly below the board.
 
 ## Dark mode: courtyard at dusk
 
@@ -206,3 +205,8 @@ briefly reveal its title and composer beside the icon, without shifting the
 header or board. Dismiss the announcement after about four seconds or on pause;
 replace it when another track starts. Reduced motion keeps the icon still and
 shows the same temporary announcement without movement or fading.
+
+Header preferences use a gear icon and a nonmodal popover with labeled sound,
+annotations, and touch-preview toggles. Put Undo and New game in the information
+panel’s heading alongside the move counter; keep contextual upgrade, placement,
+and review controls in their existing slot. Preserve the panel’s fixed height.
