@@ -212,3 +212,8 @@ panel’s heading alongside the move counter; start a fresh game by choosing
 Classic or Upgrade, including the currently selected mode. Keep the confirmation
 for games already in progress; keep contextual upgrade, placement,
 and review controls in their existing slot. Preserve the panel’s fixed height.
+
+Explain preferences with hover tips and associated accessible descriptions. Show
+those descriptions on keyboard focus and keep them visible on touch devices.
+State that touch preview applies only to touchscreen taps, that annotations
+control arrows and off-board marks, and that game sounds are separate from music.

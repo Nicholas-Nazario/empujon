@@ -61,6 +61,6 @@ export function renderGame(layout: Layout, state: ViewState): void {
 
 export function renderSoundButton(button: HTMLButtonElement, enabled: boolean): void {
   button.setAttribute('aria-pressed', String(enabled));
-  button.title = enabled ? 'Turn sound off' : 'Turn sound on';
+  button.title = `Sounds for placements, pushes, upgrades, and wins. Background music is controlled separately. ${enabled ? 'Turn sound off.' : 'Turn sound on.'}`;
   button.innerHTML = `${renderIcon(enabled ? 'music' : 'music-off')}<span>Sound ${enabled ? 'on' : 'off'}</span>`;
 }

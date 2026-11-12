@@ -120,7 +120,7 @@ export function startApp(root: HTMLElement): void {
   const touchPreviewSetting = root.querySelector<HTMLButtonElement>('#touch-preview')!;
   function renderTouchPreviewSetting(): void {
     touchPreviewSetting.setAttribute('aria-pressed', String(touchPreviewEnabled));
-    touchPreviewSetting.title = touchPreviewEnabled ? 'Tap once to preview, then tap again to place' : 'Tap once to place';
+    touchPreviewSetting.title = `Touchscreens only. ${touchPreviewEnabled ? 'Tap once to preview, then tap the same square again to place.' : 'Turn on to preview before placing; currently one tap places a piece.'} Mouse and keyboard previews are unchanged.`;
     touchPreviewSetting.innerHTML = `${renderIcon(touchPreviewEnabled ? 'touch' : 'touch-off')}<span>Touch preview ${touchPreviewEnabled ? 'on' : 'off'}</span>`;
   }
   renderTouchPreviewSetting();

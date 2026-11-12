@@ -415,3 +415,10 @@ h2 { font-size: var(--font-size-24); }
 .information-game-button[hidden] { display:none; }
 @media(max-width:650px) { .header-menu { top:64px; right:16px; max-height:calc(100dvh - 80px); } }
 @media(max-width:390px) { .topbar .header-icon { width:32px; height:32px; } .information-game-actions { gap:4px; } }
+
+/* Native hover tips are also readable on focus and on devices without hover. */
+.preference-help { position:absolute; width:1px; height:1px; margin:0; padding:0; overflow:hidden; clip-path:inset(50%); font-size:var(--font-size-11); line-height:1.7; color:var(--muted); }
+.preference-row:focus-within .preference-help { position:static; width:auto; height:auto; margin:8px 4px 0; overflow:visible; clip-path:none; }
+@media(any-pointer:coarse), (hover:none) {
+  .preference-help { position:static; width:auto; height:auto; margin:8px 4px 0; overflow:visible; clip-path:none; }
+}
