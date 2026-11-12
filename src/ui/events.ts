@@ -40,7 +40,6 @@ export function bindGameEvents(layout: Layout, actions: GameActions): void {
   for (const button of layout.opponentButtons) {
     button.addEventListener('click', () => actions.requestNewGame(undefined, button.dataset.opponent === 'local' ? null : button.dataset.opponent as Difficulty));
   }
-  layout.restartButton.addEventListener('click', () => actions.requestNewGame());
   layout.undoButton.addEventListener('click', actions.undoMove);
   layout.soundButton.addEventListener('click', actions.toggleSound);
 }

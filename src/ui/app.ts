@@ -370,7 +370,6 @@ export function startApp(root: HTMLElement): void {
     banner.hidden = !online;
     details.hidden = !online;
     root.classList.toggle('is-online', !!online);
-    layout.restartButton.disabled = !!online;
     for (const button of [...layout.modeButtons, ...layout.opponentButtons]) button.disabled = !!online;
     if (online && seat) {
       const rulesSection = details.querySelector('.session-section')!;
@@ -543,7 +542,7 @@ export function startApp(root: HTMLElement): void {
     details.hidden = false;
     root.classList.add('is-online');
     root.querySelector('#online-seat')!.textContent = 'Joining online game';
-    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #restart, #undo')) button.disabled = true;
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #undo')) button.disabled = true;
     leaveButton.hidden = false;
     onlineStatus.textContent = 'Joining game…';
     onlineInformation = { title: 'Joining online game', status: 'Joining game…', yourTurn: false };

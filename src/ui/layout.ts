@@ -29,7 +29,6 @@ export function mountLayout(root: HTMLElement) {
     opponentNote: requireElement(root, '#opponent-note'),
     undoButton: requireElement<HTMLButtonElement>(root, '#undo'),
     soundButton: requireElement<HTMLButtonElement>(root, '#sound'),
-    restartButton: requireElement<HTMLButtonElement>(root, '#restart'),
     rulesOpenButton: requireElement<HTMLButtonElement>(root, '#rules-open'),
     rulesDialog: requireElement<HTMLDialogElement>(root, '#rules'),
     rulesCloseButton: requireElement<HTMLButtonElement>(root, '#rules-close'),

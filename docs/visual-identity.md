@@ -207,6 +207,8 @@ replace it when another track starts. Reduced motion keeps the icon still and
 shows the same temporary announcement without movement or fading.
 
 Header preferences use a gear icon and a nonmodal popover with labeled sound,
-annotations, and touch-preview toggles. Put Undo and New game in the information
-panel’s heading alongside the move counter; keep contextual upgrade, placement,
+annotations, and touch-preview toggles. Put Undo in the information
+panel’s heading alongside the move counter; start a fresh game by choosing
+Classic or Upgrade, including the currently selected mode. Keep the confirmation
+for games already in progress; keep contextual upgrade, placement,
 and review controls in their existing slot. Preserve the panel’s fixed height.

@@ -37,7 +37,7 @@ button:disabled { cursor: default; }
 .is-online .intro h1 { font-size: var(--font-size-28); }
 .is-online .intro h1 br, .is-online .intro h1 span, .is-online .intro-copy, .is-online .intro-tag { display: none; }
 .is-online .board-frame { border-color: var(--is-online-board-frame-border-color); }
-.is-online #undo, .is-online #restart { display: none; }
+.is-online #undo { display: none; }
 @media(max-width:650px) {
   .online-banner { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding: 14px; }
   .online-panel { margin-top: 16px; gap: 8px; }

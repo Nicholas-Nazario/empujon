@@ -135,9 +135,9 @@ try {
       await writeFile(`${tmpdir()}/empujon-review-${theme}-${width}.png`, Buffer.from(shot.data,'base64'));
     }
   }
-  await local.evaluate('document.querySelector("[data-review=first]").click(); document.querySelector("#restart").click(); document.querySelector("#cancel-new").click()');
+  await local.evaluate('document.querySelector("[data-review=first]").click(); document.querySelector("[data-mode].active").click(); document.querySelector("#cancel-new").click()');
   await assertPosition(local, upgrade.frames[0]);
-  await local.evaluate('document.querySelector("#restart").click(); document.querySelector("#confirm-new").click()');
+  await local.evaluate('document.querySelector("[data-mode].active").click(); document.querySelector("#confirm-new").click()');
   assert.equal(await local.evaluate('document.querySelector("#game-review").hidden'), true);
   assert.equal(await local.evaluate('document.querySelectorAll("[data-cell]:not(:disabled)").length'), 36);
   console.log('Local review: every upgrade position, choice, supply, navigation boundary, annotations, reset, both themes and four widths.');
