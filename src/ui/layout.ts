@@ -3,6 +3,7 @@ import onlineHtml from './templates/online.html?raw';
 import informationHtml from './templates/board-information.html?raw';
 import layoutHtml from './templates/layout.html?raw';
 import rulesHtml from './templates/rules.html?raw';
+import musicHtml from './templates/music.html?raw';
 import newGameHtml from './templates/new-game.html?raw';
 
 /** Resolve stable elements once, and fail clearly if the template is incomplete. */
@@ -13,7 +14,7 @@ function requireElement<T extends HTMLElement>(root: HTMLElement, selector: stri
 }
 
 export function mountLayout(root: HTMLElement) {
-  root.innerHTML = renderTemplateIcons(layoutHtml.replace('<!-- board-information -->', informationHtml) + rulesHtml + newGameHtml + onlineHtml);
+  root.innerHTML = renderTemplateIcons(layoutHtml.replace('<!-- board-information -->', informationHtml) + rulesHtml + newGameHtml + onlineHtml + musicHtml);
   return {
     board: requireElement<HTMLDivElement>(root, '#board'),
     boardHeading: requireElement(root, '.board-heading'),

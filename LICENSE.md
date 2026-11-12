@@ -45,3 +45,19 @@ claim ownership of game mechanics, abstract ideas, or a general visual style.
 Empujón draws inspiration from Scott Brady's Gekitai and Gekitai 2; no ownership
 of those games is claimed. Third-party dependencies, fonts, and other material
 remain subject to their own licenses.
+
+## Background music
+
+Background recordings are licensed separately from the game's software and creative content:
+
+| Song | Composer | License |
+| --- | --- | --- |
+| Airoso | [WombatNoisesAudio](https://soundcloud.com/user-734462061) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| Caribbean Night | [Justin Allan Arnold](https://soundcloud.com/justin-allan-arnold) | [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) |
+| Cada Minuto Cuenta | [Justin Allan Arnold](https://soundcloud.com/justin-allan-arnold) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| Salome | [Justin Allan Arnold](https://soundcloud.com/justin-allan-arnold) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+| La Calle Oscura | [Justin Allan Arnold](https://soundcloud.com/justin-allan-arnold) | [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/) |
+
+Music powered by [BreakingCopyright](https://breakingcopyright.com).
+The recordings in `public/music/` are unchanged and repeat during background playback.
+Credits are also available in the game's music selection screen and `public/music/README.md`.

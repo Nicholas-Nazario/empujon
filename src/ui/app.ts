@@ -8,6 +8,7 @@ import { tripleSelectionAt } from './triple-selection.ts';
 import { renderMovement } from './components/movement.ts';
 import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
+import { setupMusic } from './music.ts';
 import { mountLayout } from './layout.ts';
 import { createModals } from './modals.ts';
 import { createGameSound, transitionSounds } from './sound.ts';
@@ -17,6 +18,7 @@ import { movementStage, animateMovement, pulseReturnedSupplies } from './motion.
 /** Owns the local session and translates UI actions into shared-engine calls. */
 export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
+  setupMusic(root);
   const sounds = createGameSound();
   const information = createBoardInformation(layout.boardHeading);
   let onlineInformation: BoardInformationState['online'] = null;

@@ -6,7 +6,7 @@ import { Sessions } from './sessions.ts';
 const sessions = new Sessions(() => Date.now(), process.env.DATABASE_PATH ?? 'sessions.sqlite');
 const dev = process.argv.includes('--dev');
 const vite = dev ? await (await import('vite')).createServer({ server: { middlewareMode: true }, appType: 'spa' }) : null;
-const mime: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon' };
+const mime: Record<string, string> = { '.html': 'text/html', '.js': 'text/javascript', '.css': 'text/css', '.svg': 'image/svg+xml', '.png': 'image/png', '.ico': 'image/x-icon', '.mp3': 'audio/mpeg' };
 const server = createServer(async (req, res) => {
   const url = new URL(req.url!, 'http://localhost');
   if (!url.pathname.startsWith('/api/')) {
