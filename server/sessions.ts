@@ -5,7 +5,7 @@ import { actingPlayer, applyAction } from '../src/actions.ts';
 
 export const SESSION_LIFETIME = 2 * 60 * 60 * 1000;
 type Session = {
-  code: string; game: Game; host: Player; tokens: (string | null)[];
+  code: string; game: Game; history: Game[]; host: Player; tokens: (string | null)[];
   joined: boolean; turnSeconds: number; deadline: number | null;
   expiresAt: number; revision: number; listeners: Set<() => void>;
 };
@@ -19,6 +19,7 @@ export class Sessions {
     this.db.exec('PRAGMA journal_mode=WAL; CREATE TABLE IF NOT EXISTS sessions (code TEXT PRIMARY KEY, data TEXT NOT NULL)');
     for (const row of this.db.prepare('SELECT data FROM sessions').all()) {
       const session = JSON.parse(String(row.data));
+      session.history ??= [session.game];
       session.listeners = new Set<() => void>();
       this.games.set(session.code, session);
     }
@@ -35,7 +36,8 @@ export class Sessions {
     let code: string;
     do { code = Array.from({ length: 6 }, () => 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'[randomInt(36)]).join(''); } while (this.games.has(code));
     const host = randomInt(2) as Player;
-    const session: Session = { code, game: createGame(mode), host, tokens: [null, null] as (string | null)[], joined: false, turnSeconds, deadline: null as number | null, expiresAt: this.now() + SESSION_LIFETIME, revision: 0, listeners: new Set<() => void>() };
+    const session: Session = { code, game: createGame(mode), history: [], host, tokens: [null, null] as (string | null)[], joined: false, turnSeconds, deadline: null as number | null, expiresAt: this.now() + SESSION_LIFETIME, revision: 0, listeners: new Set<() => void>() };
+    session.history = [session.game];
     session.tokens[host] = randomBytes(18).toString('hex');
     this.games.set(code, session);
     this.save(session);
@@ -71,6 +73,7 @@ export class Sessions {
     if (actingPlayer(session.game) !== player) throw new Error('It is not your turn.');
     const previous = actingPlayer(session.game);
     session.game = applyAction(session.game, action);
+    session.history.push(session.game);
     if (actingPlayer(session.game) !== previous) this.resetClock(session);
     this.publish(session);
     return this.view(session);
@@ -81,12 +84,13 @@ export class Sessions {
   timeout(session: Session) {
     if (session.deadline !== null && session.deadline <= this.now() && session.game.winner === null) {
       session.game = { ...session.game, winner: (1 - actingPlayer(session.game)!) as Player, reason: 'timeout', message: 'Turn time expired. The other player wins.', choices: [] };
+      session.history.push(session.game);
       session.deadline = null;
       this.publish(session);
     }
   }
   view(session: Session) {
-    return { code: session.code, game: session.game, joined: session.joined, turnSeconds: session.turnSeconds, deadline: session.deadline, expiresAt: session.expiresAt, revision: session.revision };
+    return { code: session.code, game: session.game, ...(session.game.winner !== null ? { history: session.history } : {}), joined: session.joined, turnSeconds: session.turnSeconds, deadline: session.deadline, expiresAt: session.expiresAt, revision: session.revision };
   }
   publish(session: Session) { session.revision++; this.save(session); for (const listener of session.listeners) listener(); }
   sweep() {

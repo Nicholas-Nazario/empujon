@@ -12,7 +12,7 @@ function closeOnBackdropClick(dialog: HTMLDialogElement): void {
 }
 
 /** Owns dialog events and the mode awaiting restart confirmation. */
-export function createModals(layout: Layout, onConfirmNewGame: (mode: Mode) => void) {
+export function createModals(layout: Layout, onConfirmNewGame: (mode: Mode) => void, onReviewGame: () => void) {
   let pendingMode: Mode = 'classic';
   let resultTimer: ReturnType<typeof setTimeout> | undefined;
   const cancelResult = () => {
@@ -26,7 +26,11 @@ export function createModals(layout: Layout, onConfirmNewGame: (mode: Mode) => v
 
   layout.rulesOpenButton.addEventListener('click', openRules);
   layout.rulesCloseButton.addEventListener('click', () => layout.rulesDialog.close());
-  layout.cancelNewButton.addEventListener('click', () => layout.newGameDialog.close());
+  layout.cancelNewButton.addEventListener('click', () => {
+    const review = layout.newGameDialog.classList.contains('game-result');
+    layout.newGameDialog.close();
+    if (review) onReviewGame();
+  });
   layout.confirmNewButton.addEventListener('click', () => {
     onConfirmNewGame(pendingMode);
     layout.newGameDialog.close();
@@ -56,7 +60,7 @@ export function createModals(layout: Layout, onConfirmNewGame: (mode: Mode) => v
         eyebrow.textContent = 'GAME OVER';
         title.textContent = heading;
         description.textContent = message;
-        layout.cancelNewButton.textContent = 'View board';
+        layout.cancelNewButton.textContent = 'Review game';
         layout.newGameDialog.classList.add('game-result');
         layout.newGameDialog.showModal();
       }, 2000);

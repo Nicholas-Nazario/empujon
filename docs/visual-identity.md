@@ -154,3 +154,21 @@ purple. Their dusk values are lighter to remain legible on dark surfaces. Keep
 the shared player names, gold upgrades, typography, grain, and shallow relief.
 Use warm sand for the wood wordmark and pale mineral ink for movement arrows.
 Selection and turn states retain neutral surfaces with colored borders and marks.
+
+## Post-game review
+
+The result dialog offers “Review game”. Only after that button is clicked, show
+review controls inside the existing information panel above the board. Combine
+the current position’s heading, last-move description, first/previous/next/final
+controls, and position counter in that single panel. Omit duplicate review labels
+and move counts. Record every placement and explicit upgrade choice, including CPU
+turns. Review updates the board, supplies, last-move description, and optional
+annotations together. Keep historical positions read-only, with no previews,
+placement controls, or thinking prompts. Single steps in both directions animate placements, pushes, and off-board
+returns. Backward steps slide pushed pieces back, bring exited pieces onto the
+board, and return the placed piece to supply. Upgrade decisions and jumps are immediate. Review stays silent
+and honors reduced motion. Retain static winning highlights without repeating win animations or dialogs.
+Use the same neutral stucco surfaces and Phosphor icons in both appearances.
+New game starts a fresh timeline. Online timelines last for the session and
+survive reconnection; sessions created before history was recorded can only
+show their available positions.

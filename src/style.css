@@ -313,3 +313,17 @@ h2 { font-size: var(--font-size-24); }
   .topbar .text-button { font-size: var(--font-size-10); gap: 4px; }
 
 }
+
+.game-review { grid-column: 1 / -1; margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line); color: var(--osj-adoquin-blue); }
+.game-review[hidden] { display: none; }
+.review-controls { display: flex; align-items: center; gap: 4px; }
+.review-controls button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 36px; min-height: 44px; padding: 0; border: 1px solid var(--line); border-radius: var(--radius-6); background: var(--osj-stucco-white); }
+.review-controls button:hover:enabled { border-color: var(--control-accent); color: var(--control-accent); }
+.review-controls button:disabled { opacity: .35; cursor: default; }
+#review-position { flex: 1; text-align: center; font-size: var(--font-size-11); line-height: 1.5; font-variant-numeric: tabular-nums; }
+.is-reviewing .winning, .is-reviewing .winning > .piece { animation: none; }
+@media (max-width: 380px) {
+  .review-controls { gap: 3px; }
+  .review-controls button { flex-basis: 32px; }
+  #review-position { font-size: var(--font-size-10); }
+}

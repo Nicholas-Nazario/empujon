@@ -93,6 +93,15 @@
         </div>
         <span class="move-count" id="move-count"></span>
         <p id="movement-description" class="movement-description" role="status"></p>
+        <section id="game-review" class="game-review" aria-label="Game review" hidden>
+          <div class="review-controls" role="group" aria-label="Review navigation">
+            <button type="button" data-review="first" aria-label="Starting position" title="Starting position"><span data-icon="skip-back"></span></button>
+            <button type="button" data-review="previous" aria-label="Previous position" title="Previous position"><span data-icon="caret-left"></span></button>
+            <span id="review-position" role="status" aria-live="polite" aria-atomic="true"></span>
+            <button type="button" data-review="next" aria-label="Next position" title="Next position"><span data-icon="caret-right"></span></button>
+            <button type="button" data-review="final" aria-label="Final position" title="Final position"><span data-icon="skip-forward"></span></button>
+          </div>
+        </section>
       </div>
       <div class="board-frame">
         <div class="coordinates top-coords" aria-hidden="true">

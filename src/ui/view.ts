@@ -10,6 +10,7 @@ import { renderPiece } from './components/piece.ts';
 export type ViewState = {
   game: Game;
   locked?: boolean;
+  reviewing?: boolean;
   selectedUpgraded: boolean;
   canUndo: boolean;
   soundEnabled: boolean;
@@ -31,8 +32,9 @@ export function renderGame(layout: Layout, state: ViewState): void {
   layout.boardHeading.className = `board-heading color-${activePlayer}`;
   layout.playPanel.className = `play-panel color-${activePlayer}`;
   layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
+  layout.moveCount.hidden = !!state.reviewing;
   layout.boardMode.textContent = game.mode.toUpperCase();
-  const thinking = !!state.computer && actingPlayer(game) === 1;
+  const thinking = !state.reviewing && !!state.computer && actingPlayer(game) === 1;
   layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
   layout.opponentNote.textContent = state.computer
     ? `You’re ${names[0]}. ${difficultyNames[state.computer]} plays ${names[1]}.`
@@ -59,8 +61,16 @@ export function renderGame(layout: Layout, state: ViewState): void {
     layout.board.innerHTML = boardHtml;
     boardMarkup.set(layout.board, boardHtml);
   }
-  layout.choices.innerHTML = renderUpgradeChoices(game, thinking || state.locked);
-  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
+  layout.choices.innerHTML = state.reviewing ? '' : renderUpgradeChoices(game, thinking || state.locked);
+  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer, state.reviewing);
+  if (state.reviewing) {
+    layout.turnTitle.textContent = game.winner !== null ? `${playerName} wins · Review` : 'Game review';
+    layout.moveCount.textContent = `MOVE ${String(game.moves).padStart(2, '0')}`;
+    layout.status.textContent = game.moves === 0 ? 'Starting position. Terracotta opens.'
+      : game.winner !== null ? game.message
+      : game.choices.length ? `${names[game.choices[0].owner]} has an upgrade decision.`
+      : `Position after move ${game.moves}. ${game.rewards.join(' ')}`.trim();
+  }
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);
 }
