@@ -5,10 +5,10 @@
     <span class="brand-dot"></span>
   </a>
   <div class="header-actions">
+    <button id="preferences-open" class="header-icon" type="button" popovertarget="preferences-menu" aria-label="Game preferences" title="Game preferences" aria-expanded="false" aria-controls="preferences-menu"><span data-icon="settings"></span></button>
     <button id="music-open" class="header-icon" type="button" popovertarget="music-dialog" aria-label="Music settings" aria-expanded="false" aria-controls="music-dialog"><span data-icon="music"></span></button>
-    <button id="theme" type="button" role="switch" aria-label="Dark mode" aria-checked="false"><span data-icon="sun"></span></button>
-    <button class="text-button" id="rules-open" aria-label="How to play">
-      <span class="rules-label">How to play</span>
+    <button id="theme" class="header-icon" type="button" role="switch" aria-label="Dark mode" aria-checked="false"><span data-icon="sun"></span></button>
+    <button class="header-icon" id="rules-open" type="button" aria-label="How to play" title="How to play" aria-haspopup="dialog" aria-controls="rules">
       <span data-icon="info"></span>
     </button>
   </div>
@@ -119,25 +119,25 @@
         </div>
       </div>
       <div id="choices" class="choices"></div>
-      <div class="board-actions">
-        <button class="text-button" id="undo">
-          <span data-icon="undo"></span>
-          <span>Undo move</span>
-        </button>
-        <button class="text-button" id="sound" aria-pressed="false">
-          <span data-icon="music-off"></span>
-          <span>Sound off</span>
-        </button>
-        <button class="text-button" id="movement-toggle" aria-pressed="false" title="Toggle movement annotations"><span data-icon="eye-off"></span><span>Annotations off</span></button>
-        <button class="text-button" id="restart">
-          <span data-icon="restart"></span>
-          <span>New game</span>
-        </button>
-      </div>
-      <button class="text-button touch-preview-setting" id="touch-preview" aria-pressed="false"><span data-icon="touch-off"></span><span>Touch preview off</span></button>
     </section>
     <aside class="players-panel" aria-label="Players">
       <div id="players"></div>
     </aside>
   </div>
 </main>
+
+<section id="preferences-menu" class="header-menu" popover role="dialog" aria-labelledby="preferences-title">
+  <div class="dialog-top"><h2 id="preferences-title">Game preferences</h2><button id="preferences-close" class="icon-button" type="button" aria-label="Close game preferences"><span data-icon="close"></span></button></div>
+  <div class="preference-row">
+    <button class="preference-toggle" id="sound" type="button" aria-pressed="false" aria-describedby="sound-help"><span data-icon="sound-off"></span><span>Sound effects off</span></button>
+    <p class="preference-help" id="sound-help">Sounds for placements, pushes, upgrades, and wins. Background music is controlled separately.</p>
+  </div>
+  <div class="preference-row">
+    <button class="preference-toggle" id="movement-toggle" type="button" aria-pressed="false" aria-describedby="annotations-help" title="Show direction arrows for pushes and marks where pieces leave the board. The last-move text stays visible either way."><span data-icon="eye-off"></span><span>Annotations off</span></button>
+    <p class="preference-help" id="annotations-help">Show direction arrows for pushes and marks where pieces leave the board. The last-move text stays visible either way.</p>
+  </div>
+  <div class="preference-row">
+    <button class="preference-toggle" id="touch-preview" type="button" aria-pressed="false" aria-describedby="touch-preview-help"><span data-icon="touch-off"></span><span>Touch preview off</span></button>
+    <p class="preference-help" id="touch-preview-help">Touchscreens only. Turn on to preview a placement with the first tap, then tap the same square again to place. Mouse and keyboard previews are unchanged.</p>
+  </div>
+</section>

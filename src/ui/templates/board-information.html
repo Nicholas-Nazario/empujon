@@ -1,8 +1,10 @@
 <div class="board-heading" aria-label="Game information">
   <div class="information-heading">
     <span class="information-title"><span class="live-dot" aria-hidden="true"></span><span id="turn-title"></span></span>
-    <span class="move-count" id="move-count"></span>
+    <div class="information-game-actions"><span class="move-count" id="move-count"></span>
     <span id="review-position" role="status" aria-live="polite" aria-atomic="true" hidden></span>
+    <button class="information-game-button" id="undo" type="button" aria-label="Undo move" title="Undo move"><span data-icon="undo"></span></button>
+    </div>
   </div>
   <div class="information-details">
     <p id="movement-description" class="movement-description" role="status"></p>

@@ -89,11 +89,11 @@ try {
   await evaluate('document.querySelector("#rules-open").click()');
   assert.ok(await evaluate('document.querySelector("#rules").open'));
   await evaluate('document.querySelector("#rules-close").click()');
-  await evaluate('document.querySelectorAll("[data-cell]")[14].click(); document.querySelector("#restart").click()');
+  await evaluate('document.querySelectorAll("[data-cell]")[14].click(); document.querySelector("[data-mode].active").click()');
   assert.ok(await evaluate('document.querySelector("#new-game").open'));
   await evaluate('document.querySelector("#cancel-new").click()');
   assert.equal(await evaluate('document.querySelector("#move-count").textContent'),'MOVE 02');
-  await evaluate('document.querySelector("#restart").click(); document.querySelector("#confirm-new").click()');
+  await evaluate('document.querySelector("[data-mode].active").click(); document.querySelector("#confirm-new").click()');
   assert.equal(await evaluate('document.querySelector("#move-count").textContent'),'MOVE 01');
   // Modal confirmation must preserve the selected target mode across cancel/retry.
   await evaluate('document.querySelectorAll("[data-cell]")[14].click(); document.querySelector("[data-mode=classic]").click()');
@@ -209,7 +209,7 @@ try {
     let humanChoices = 0, computerChoices = 0, crossTurnChoices = 0, upgradedPlacements = 0;
     try {
       for (let run = 0; run < 3; run++) {
-        document.querySelector('#restart').click();
+        document.querySelector('[data-mode].active').click();
         if (document.querySelector('#new-game').open) document.querySelector('#confirm-new').click();
         let game = createGame('upgrade');
         for (let step = 0; step < 1000 && game.winner === null; step++) {
@@ -290,7 +290,7 @@ try {
         }
         document.querySelector('[data-piece]')?.click();
         if (result.open) throw new Error('Dismissed result reopened');
-        document.querySelector('#restart').click();
+        document.querySelector('[data-mode].active').click();
         if (document.querySelector('#new-game-title').textContent !== 'Start a new game?'
           || document.querySelector('#cancel-new').textContent !== 'Keep playing') {
           throw new Error('Restart did not restore confirmation copy');

@@ -19,16 +19,19 @@ import { movementStage, animateMovement, pulseReturnedSupplies } from './motion.
 export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
   setupMusic(root);
+  const preferencesMenu = root.querySelector<HTMLElement>('#preferences-menu')!;
+  const preferencesOpen = root.querySelector<HTMLButtonElement>('#preferences-open')!;
+  preferencesMenu.addEventListener('toggle', () => preferencesOpen.setAttribute('aria-expanded', String(preferencesMenu.matches(':popover-open'))));
+  root.querySelector('#preferences-close')!.addEventListener('click', () => preferencesMenu.hidePopover());
   const sounds = createGameSound();
   const information = createBoardInformation(layout.boardHeading);
   let onlineInformation: BoardInformationState['online'] = null;
   const settings = root.querySelector<HTMLDetailsElement>('.game-settings')!;
   const mobileLayout = matchMedia('(max-width: 650px)');
   const playersPanel = root.querySelector<HTMLElement>('.players-panel')!;
-  const boardActions = root.querySelector<HTMLElement>('.board-actions')!;
   function arrangeMobileLayout(): void {
     settings.open = !mobileLayout.matches;
-    if (mobileLayout.matches) boardActions.before(playersPanel);
+    if (mobileLayout.matches) layout.choices.after(playersPanel);
     else layout.playPanel.after(playersPanel);
   }
   arrangeMobileLayout();
@@ -117,7 +120,7 @@ export function startApp(root: HTMLElement): void {
   const touchPreviewSetting = root.querySelector<HTMLButtonElement>('#touch-preview')!;
   function renderTouchPreviewSetting(): void {
     touchPreviewSetting.setAttribute('aria-pressed', String(touchPreviewEnabled));
-    touchPreviewSetting.title = touchPreviewEnabled ? 'Tap once to preview, then tap again to place' : 'Tap once to place';
+    touchPreviewSetting.title = `Touchscreens only. ${touchPreviewEnabled ? 'Tap once to preview, then tap the same square again to place.' : 'Turn on to preview before placing; currently one tap places a piece.'} Mouse and keyboard previews are unchanged.`;
     touchPreviewSetting.innerHTML = `${renderIcon(touchPreviewEnabled ? 'touch' : 'touch-off')}<span>Touch preview ${touchPreviewEnabled ? 'on' : 'off'}</span>`;
   }
   renderTouchPreviewSetting();
@@ -307,7 +310,7 @@ export function startApp(root: HTMLElement): void {
   function render(): void {
     root.classList.toggle('is-reviewing', reviewIndex !== null);
     layout.undoButton.hidden = game.winner !== null;
-    touchPreviewSetting.hidden = game.winner !== null;
+    touchPreviewSetting.disabled = game.winner !== null;
     if (reviewIndex !== null) {
       const displayed = motion?.stage ?? viewedGame();
       layout.board.classList.toggle('is-moving', !!motion);
@@ -367,7 +370,6 @@ export function startApp(root: HTMLElement): void {
     banner.hidden = !online;
     details.hidden = !online;
     root.classList.toggle('is-online', !!online);
-    layout.restartButton.disabled = !!online;
     for (const button of [...layout.modeButtons, ...layout.opponentButtons]) button.disabled = !!online;
     if (online && seat) {
       const rulesSection = details.querySelector('.session-section')!;
@@ -540,7 +542,7 @@ export function startApp(root: HTMLElement): void {
     details.hidden = false;
     root.classList.add('is-online');
     root.querySelector('#online-seat')!.textContent = 'Joining online game';
-    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #restart, #undo')) button.disabled = true;
+    for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #undo')) button.disabled = true;
     leaveButton.hidden = false;
     onlineStatus.textContent = 'Joining game…';
     onlineInformation = { title: 'Joining online game', status: 'Joining game…', yourTurn: false };

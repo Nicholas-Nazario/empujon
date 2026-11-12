@@ -37,7 +37,7 @@ button:disabled { cursor: default; }
 .is-online .intro h1 { font-size: var(--font-size-28); }
 .is-online .intro h1 br, .is-online .intro h1 span, .is-online .intro-copy, .is-online .intro-tag { display: none; }
 .is-online .board-frame { border-color: var(--is-online-board-frame-border-color); }
-.is-online #undo, .is-online #restart { display: none; }
+.is-online #undo { display: none; }
 @media(max-width:650px) {
   .online-banner { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 16px; padding: 14px; }
   .online-panel { margin-top: 16px; gap: 8px; }
@@ -294,10 +294,6 @@ h2 { font-size: var(--font-size-24); }
 .board.is-moving .cell:has(> .piece) { z-index: 3; }
 
 .header-actions { display: flex; align-items: center; gap: 18px; }
-#theme { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; color: var(--osj-adoquin-blue); background: var(--osj-stucco-white); border: 1px solid var(--line); border-radius: var(--radius-6); flex-shrink: 0; }
-#theme:hover { border-color: var(--control-accent); }
-#theme .ui-icon { width: 20px; height: 20px; }
-#theme:focus-visible { outline: 3px solid var(--control-accent); outline-offset: 4px; }
 @media (max-width: 600px) {
   .header-actions { gap: 8px; }
   .topbar .text-button { font-size: var(--font-size-10); gap: 4px; }
@@ -392,9 +388,7 @@ h2 { font-size: var(--font-size-24); }
 @media(max-width:650px) {
   #music-dialog { top:64px; right:16px; max-height:calc(100dvh - 80px); }
   .header-actions { gap:4px; }
-  .topbar #rules-open .rules-label { display:none; }
-  .topbar #rules-open { gap:0; min-width:28px; justify-content:center; }
-  .topbar #theme, .topbar .header-icon { width:36px; height:36px; }
+  .topbar .header-icon { width:36px; height:36px; }
 }
 @media(max-width:390px) { .topbar .wordmark { font-size:var(--font-size-24); } }
 
@@ -406,4 +400,25 @@ h2 { font-size: var(--font-size-24); }
 @media(prefers-reduced-motion:no-preference) {
   #music-open.music-playing .ui-icon { transform-origin:50% 70%; animation:music-note-sway 1.8s ease-in-out infinite; }
   @keyframes music-note-sway { 0%,100% { transform:rotate(-5deg) translateY(0); } 50% { transform:rotate(5deg) translateY(-1px); } }
+}
+
+.header-menu { position:fixed; inset:80px 20px auto auto; margin:0; width:min(320px,calc(100vw - 32px)); max-height:calc(100dvh - 100px); overflow:auto; box-sizing:border-box; border:1px solid var(--line); border-radius:var(--radius-12); padding:20px; color:var(--osj-adoquin-blue); background:var(--osj-stucco-white); box-shadow:var(--dialog-box-shadow); }
+.header-menu h2 { margin:0; font-size:var(--font-size-20); }
+.header-menu .icon-button { min-width:32px; min-height:32px; border:0; background:transparent; }
+.preference-toggle { display:flex; align-items:center; gap:12px; width:100%; min-height:48px; margin-top:12px; padding:10px 12px; border:1px solid var(--line); border-radius:var(--radius-6); background:var(--osj-stucco-white); font-size:var(--font-size-12); text-align:left; }
+.preference-toggle[aria-pressed="true"], .preference-toggle:hover:enabled { border-color:var(--control-accent); }
+.preference-toggle:disabled { opacity:.45; cursor:default; }
+.information-game-actions { display:flex; align-items:center; justify-content:flex-end; gap:6px; flex-shrink:0; }
+.information-game-button { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; padding:0; border:1px solid var(--line); border-radius:var(--radius-6); background:var(--osj-stucco-white); flex-shrink:0; }
+.information-game-button:hover:enabled { border-color:var(--control-accent); }
+.information-game-button:disabled { opacity:.35; cursor:default; }
+.information-game-button[hidden] { display:none; }
+@media(max-width:650px) { .header-menu { top:64px; right:16px; max-height:calc(100dvh - 80px); } }
+@media(max-width:390px) { .topbar .header-icon { width:32px; height:32px; } .information-game-actions { gap:4px; } }
+
+/* Native hover tips are also readable on focus and on devices without hover. */
+.preference-help { position:absolute; width:1px; height:1px; margin:0; padding:0; overflow:hidden; clip-path:inset(50%); font-size:var(--font-size-11); line-height:1.7; color:var(--muted); }
+.preference-row:focus-within .preference-help { position:static; width:auto; height:auto; margin:8px 4px 0; overflow:visible; clip-path:none; }
+@media(any-pointer:coarse), (hover:none) {
+  .preference-help { position:static; width:auto; height:auto; margin:8px 4px 0; overflow:visible; clip-path:none; }
 }

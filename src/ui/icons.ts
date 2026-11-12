@@ -1,3 +1,6 @@
+import speaker from '@phosphor-icons/core/assets/regular/speaker-high.svg?raw';
+import speakerSlash from '@phosphor-icons/core/assets/regular/speaker-slash.svg?raw';
+import settings from '@phosphor-icons/core/assets/regular/gear-six.svg?raw';
 import play from '@phosphor-icons/core/assets/regular/play.svg?raw';
 import skipBack from '@phosphor-icons/core/assets/regular/skip-back.svg?raw';
 import skipForward from '@phosphor-icons/core/assets/regular/skip-forward.svg?raw';
@@ -16,7 +19,6 @@ import invite from '@phosphor-icons/core/assets/regular/user-plus.svg?raw';
 import classic from '@phosphor-icons/core/assets/regular/checkerboard.svg?raw';
 import island from '@phosphor-icons/core/assets/duotone/island-duotone.svg?raw';
 import undo from '@phosphor-icons/core/assets/regular/arrow-counter-clockwise.svg?raw';
-import restart from '@phosphor-icons/core/assets/regular/arrow-clockwise.svg?raw';
 import music from '@phosphor-icons/core/assets/regular/music-note-simple.svg?raw';
 import copy from '@phosphor-icons/core/assets/regular/copy.svg?raw';
 import close from '@phosphor-icons/core/assets/regular/x.svg?raw';
@@ -27,7 +29,7 @@ import upgrade from '@phosphor-icons/core/assets/fill/crown-simple-fill.svg?raw'
 // diagonal slash matching its regular 16-unit stroke on the 256-unit grid.
 const mutedMusic = music.replace('</svg>', '<path d="M40 40l176 176" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" /></svg>');
 const touchOff = touch.replace('</svg>', '<path d="M40 40l176 176" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" /></svg>');
-const icons = { play, 'skip-back': skipBack, 'skip-forward': skipForward, 'caret-left': caretLeft, 'caret-right': caretRight, sun, moon, touch, 'touch-off': touchOff, eye, 'eye-off': eyeSlash, robot, 'robot-duotone': robotDuotone, 'robot-fill': robotFill, info, invite, classic, island, undo, restart, music, 'music-off': mutedMusic, copy, close, online, upgrade };
+const icons = { sound: speaker, 'sound-off': speakerSlash, settings, play, 'skip-back': skipBack, 'skip-forward': skipForward, 'caret-left': caretLeft, 'caret-right': caretRight, sun, moon, touch, 'touch-off': touchOff, eye, 'eye-off': eyeSlash, robot, 'robot-duotone': robotDuotone, 'robot-fill': robotFill, info, invite, classic, island, undo, music, 'music-off': mutedMusic, copy, close, online, upgrade };
 export type IconName = keyof typeof icons;
 
 /** Only explicitly imported SVGs are bundled; labels live on their controls. */
