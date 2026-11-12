@@ -74,7 +74,7 @@ player colors.
   annotation toggle in the action bar alongside sound, undo, and new game.
   Keep preview text in the information panel above the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
 - Placements settle with a small scale motion; pushed pieces slide together one square after a brief contact beat. Off-board pieces shrink and fade as they leave the grid, followed by one subtle pulse on each receiving supply. A soft descending return sound follows the push sound when sound is enabled. Keep stationary pieces still, pause piece input during movement, and finish slides before upgrade or win pulses. Reduced-motion users see the final positions immediately.
-- Upgrade selection takes over the existing fixed-height turn tracker without shifting the board. Tap eligible pieces to preview a triple; repeat taps on a shared piece cycle through its triples. Highlight all selected pieces together and confirm with a full-width gold “Confirm upgrade” action inside the tracker. Once selected, explicitly instruct the player to confirm; give the action one restrained pulse, respecting reduced motion. Keep all upgrade interactions on the board and tracker, with no option buttons below the board. Pulse eligible pieces once, respecting reduced motion. Single-piece returns use the same interaction.
+- Upgrade selection takes over the existing fixed-height turn tracker without shifting the board. Tap eligible pieces to preview a triple; repeat taps on a shared piece cycle through its triples. Highlight all selected pieces together and confirm with a gold “Confirm upgrade” action inside the tracker. Once selected, explicitly instruct the player to confirm; give the action one restrained pulse, respecting reduced motion. Keep all upgrade interactions on the board and tracker, with no option buttons below the board. Pulse eligible pieces once, respecting reduced motion. Single-piece returns use the same interaction.
 - Upgrade triples pulse in order using the winning-piece animation, without a green cell fill, before returning to supply. Keep them visible briefly with reduced motion and pause board input during the indication.
 - Winning lines use a stronger green cell fill.
   Count across the winning pieces with one staggered pulse, then wait two
@@ -161,7 +161,7 @@ Selection and turn states retain neutral surfaces with colored borders and marks
 The result dialog offers “Review game”. Only after that button is clicked, show
 review controls inside the existing information panel above the board. Combine
 the current position’s heading, last-move description, first/previous/next/final
-controls, and position counter in that single panel. Omit duplicate review labels
+controls, and position counter in that single panel. Place the review counter in its heading. Omit duplicate review labels
 and move counts. Record every placement and explicit upgrade choice, including CPU
 turns. Review updates the board, supplies, last-move description, and optional
 annotations together. Keep historical positions read-only, with no previews,
@@ -178,8 +178,10 @@ show their available positions.
 
 `src/ui/components/board-information.ts` owns the single changing information
 panel above the board, with its markup in `src/ui/templates/board-information.html`.
-Use three consistently sized slots: heading and move count, move details and
-status, then actions. Reserve the action space even when idle. Upgrade selection
+Use a fixed heading row and a shared content area. During ordinary play, move
+details and status use that area. When actions appear, show the move
+description alongside compact controls in the same space, keeping secondary status
+available to assistive technology. Do not reserve a separate empty action row. Upgrade selection
 and confirmation, optional touch-preview placement, and review navigation share
 that slot; none add a new row or panel. Preview text replaces the last-move
 description within the details slot. Keep local, CPU, online, win, and review

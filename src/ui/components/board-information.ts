@@ -37,7 +37,7 @@ export function createBoardInformation(panel: HTMLElement) {
       panel.className = `board-heading color-${player}`;
       panel.classList.toggle('your-turn', !state.review && !!online?.yourTurn);
       panel.classList.toggle('choosing-upgrade', !!upgrade);
-      title.textContent = state.review ? game.winner !== null ? `${names[player]} wins · Review` : 'Game review'
+      title.textContent = state.review ? game.winner !== null ? `${names[player]} wins` : 'Game review'
         : online?.title ?? (game.winner !== null ? `${names[player]} wins`
           : choice ? `${names[player]} · choose an upgrade` : `${names[player]}'s turn`);
       count.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
@@ -54,6 +54,9 @@ export function createBoardInformation(panel: HTMLElement) {
       description.hidden = showPreview;
       place.hidden = !showPreview || !state.touchPreview;
       if (state.preview) place.textContent = `Place at ${'ABCDEF'[state.preview.placement % 6]}${Math.floor(state.preview.placement / 6) + 1}`;
+      const hasAction = !!state.review || !!upgrade || (showPreview && state.touchPreview);
+      panel.classList.toggle('has-information-action', hasAction);
+      status.classList.toggle('sr-only', hasAction);
       confirm.hidden = !upgrade;
       confirm.disabled = !upgrade || upgrade.selected === null;
       if (upgrade && choice) {
@@ -68,6 +71,7 @@ export function createBoardInformation(panel: HTMLElement) {
         }
       }
       review.hidden = !state.review;
+      position.hidden = !state.review;
       if (state.review) {
         const { index, total } = state.review;
         position.textContent = `${index === 0 && game.moves === 0 ? 'Starting position' : `Move ${game.moves}`} · ${index + 1} / ${total}`;

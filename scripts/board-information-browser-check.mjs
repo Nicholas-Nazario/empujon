@@ -85,10 +85,16 @@ try {
         const bounds=await evaluate(`(() => {
           const panel=document.querySelector('.board-heading').getBoundingClientRect();
           const board=document.querySelector('#board').getBoundingClientRect();
+          const host=document.querySelector('.board-heading');
+          const details=host.querySelector('.information-details').getBoundingClientRect();
+          const actions=host.querySelector('.information-actions').getBoundingClientRect();
+          const separated=!host.classList.contains('has-information-action') || details.right<=actions.left;
           const buttons=[...document.querySelectorAll('.information-actions button')].map(button=>button.getBoundingClientRect()).filter(rect=>rect.width>0);
-          return {top:board.top,height:panel.height,overflow:document.documentElement.scrollWidth>innerWidth,contained:buttons.every(rect=>rect.top>=panel.top && rect.bottom<=panel.bottom && rect.left>=panel.left && rect.right<=panel.right)};
+          return {top:board.top,height:panel.height,separated,overflow:document.documentElement.scrollWidth>innerWidth,contained:buttons.every(rect=>rect.top>=panel.top && rect.bottom<=panel.bottom && rect.left>=panel.left && rect.right<=panel.right)};
         })()`);
         boardTop ??= bounds.top;
+        assert.ok(bounds.height<=110,`${theme} ${width} ${name} panel too tall`);
+        assert.equal(bounds.separated,true,`${theme} ${width} ${name} overlapping details and actions`);
         assert.equal(bounds.top,boardTop,`${theme} ${width} ${name} shifts the board`);
         assert.equal(bounds.overflow,false,`${theme} ${width} ${name} overflow`);
         assert.equal(bounds.contained,true,`${theme} ${width} ${name} actions clip`);
