@@ -9,6 +9,7 @@ import { renderPiece } from './components/piece.ts';
 
 export type ViewState = {
   game: Game;
+  locked?: boolean;
   selectedUpgraded: boolean;
   canUndo: boolean;
   soundEnabled: boolean;
@@ -52,13 +53,13 @@ export function renderGame(layout: Layout, state: ViewState): void {
     button.classList.toggle('active', isSelected);
     button.setAttribute('aria-pressed', String(isSelected));
   }
-  const boardHtml = renderBoard(game, selectedUpgraded, thinking);
+  const boardHtml = renderBoard(game, selectedUpgraded, thinking || state.locked);
   // Online status updates should not restart the winning-line animation.
   if (boardMarkup.get(layout.board) !== boardHtml) {
     layout.board.innerHTML = boardHtml;
     boardMarkup.set(layout.board, boardHtml);
   }
-  layout.choices.innerHTML = renderUpgradeChoices(game, thinking);
+  layout.choices.innerHTML = renderUpgradeChoices(game, thinking || state.locked);
   layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);

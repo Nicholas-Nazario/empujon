@@ -10,6 +10,7 @@ import { mountLayout } from './layout.ts';
 import { createModals } from './modals.ts';
 import { createGameSound, transitionSounds } from './sound.ts';
 import { renderGame, renderSoundButton } from './view.ts';
+import { movementStage, animateMovement, pulseReturnedSupplies } from './motion.ts';
 
 /** Owns the local session and translates UI actions into shared-engine calls. */
 export function startApp(root: HTMLElement): void {
@@ -31,6 +32,8 @@ export function startApp(root: HTMLElement): void {
   let upgradeKey = '';
   let upgradeTimer: ReturnType<typeof setTimeout> | undefined;
 
+  let motion: { after: Game; stage: Game; started: boolean } | null = null;
+  let motionTimer: ReturnType<typeof setTimeout> | undefined;
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
@@ -100,6 +103,11 @@ export function startApp(root: HTMLElement): void {
 
   function playTransition(before: Game, after: Game): void {
     if (soundEnabled) sounds.play(transitionSounds(before, after, seat?.player ?? (computer ? 0 : null)));
+    const stage = movementStage(before, after);
+    if (stage && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      clearTimeout(motionTimer);
+      motion = { after, stage, started: false };
+    }
   }
 
   function cancelComputer(): void {
@@ -222,29 +230,34 @@ export function startApp(root: HTMLElement): void {
   root.querySelector('#copy-invite')!.addEventListener('click', () => { void copyInvite(true); });
 
   function render(): void {
+    if (motion && (game.moves !== motion.after.moves || JSON.stringify(game.board) !== JSON.stringify(motion.after.board))) {
+      clearTimeout(motionTimer);
+      motion = null;
+    }
     const key = JSON.stringify([game.moves, game.board, game.upgradeReturns]);
-    if (key !== upgradeKey) {
+    if (!motion && key !== upgradeKey) {
       upgradeKey = key;
       clearTimeout(upgradeTimer);
       const count = game.upgradeReturns?.flat().length ?? 0;
       upgradeUntil = count ? Date.now() + (matchMedia('(prefers-reduced-motion: reduce)').matches ? 900 : 150 + (count - 1) * 300 + 550) : 0;
       if (count) upgradeTimer = setTimeout(render, upgradeUntil - Date.now() + 20);
     }
-    const returning = Date.now() < upgradeUntil ? game.upgradeReturns?.flat() ?? [] : [];
-    const displayGame = returning.length ? { ...game, board: [...game.board] } : game;
+    const returning = !motion && Date.now() < upgradeUntil ? game.upgradeReturns?.flat() ?? [] : [];
+    const displayGame = motion?.stage ?? (returning.length ? { ...game, board: [...game.board] } : game);
     for (const { index, piece } of returning) displayGame.board[index] = piece;
 
     const supply = game.pools[game.turn];
     if (selectedUpgraded !== null && !supply.some(piece => piece.upgraded === selectedUpgraded)) {
       selectedUpgraded = null;
     }
-    renderGame(layout, { game: displayGame, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
+    layout.board.classList.toggle('is-moving', !!motion);
+    renderGame(layout, { game: displayGame, locked: !!motion || returning.length > 0, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
     returning.forEach(({ index }, order) => {
       const cell = layout.board.querySelector<HTMLElement>(`[data-cell="${index}"]`);
       cell?.classList.add('upgrading');
       cell?.style.setProperty('--win-order', String(order));
     });
-    if (returning.length) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
+    if (motion || returning.length) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
     root.querySelector('#settings-summary')!.textContent = `${game.mode === 'classic' ? 'Classic' : 'Upgrade'} · ${online ? 'Online' : computer ? `${computer[0].toUpperCase()}${computer.slice(1)} CPU` : 'Pass & play'}`;
     hostButton.disabled = !!online;
     turnLimit.disabled = !!online;
@@ -285,6 +298,19 @@ export function startApp(root: HTMLElement): void {
     if (onlineError) onlineStatus.textContent = onlineError;
     showMovement();
     updateClock();
+    if (motion) {
+      if (!motion.started) {
+        motion.started = true;
+        const duration = animateMovement(layout.board, motion.after);
+        const completed = motion.after;
+        motionTimer = setTimeout(() => {
+          motion = null;
+          render();
+          pulseReturnedSupplies(layout.players, completed);
+        }, duration);
+      }
+      return;
+    }
     scheduleComputer();
     if (game.winner === null) {
       resultShown = false;
@@ -316,7 +342,7 @@ export function startApp(root: HTMLElement): void {
   const modals = createModals(layout, startNewGame);
   const actions: GameActions = {
     placePiece(index) {
-      if (Date.now() < upgradeUntil) return;
+      if (motion || Date.now() < upgradeUntil) return;
       if (touchPreview && touchSelection !== index) {
         touchSelection = index;
         showMovement(index);
@@ -335,7 +361,7 @@ export function startApp(root: HTMLElement): void {
       render();
     },
     chooseUpgrade(option) {
-      if (Date.now() < upgradeUntil) return;
+      if (motion || Date.now() < upgradeUntil) return;
       if (online) { void submit({ type: 'choose', option }); return; }
       if (computer && actingPlayer(game) === 1) return;
       const next = chooseUpgrade(game, option);
@@ -345,7 +371,7 @@ export function startApp(root: HTMLElement): void {
       render();
     },
     selectPiece(upgraded) {
-      if (!canAct() || (computer && actingPlayer(game) === 1)) return;
+      if (motion || !canAct() || (computer && actingPlayer(game) === 1)) return;
       selectedUpgraded = upgraded;
       render();
     },

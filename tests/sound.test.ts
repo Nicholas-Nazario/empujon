@@ -20,10 +20,10 @@ test('blocked and stronger neighbors do not produce push cues', () => {
   assert.deepEqual(transitionSounds(game, place(game, 15), null), ['place']);
 });
 
-test('off-board pushes produce a push cue', () => {
+test('off-board pushes add a distinct return cue', () => {
   const game = createGame('classic');
   game.board[0] = { owner: 1, upgraded: false };
-  assert.deepEqual(transitionSounds(game, place(game, 1), null), ['place', 'push']);
+  assert.deepEqual(transitionSounds(game, place(game, 1), null), ['place', 'push', 'return']);
 });
 
 test('automatic and chosen upgrades produce a chime', () => {
@@ -56,4 +56,14 @@ test('base and upgraded placements have different cues, including automatic retu
   const next = place(game, 2, true);
   assert.equal(next.board[2], null);
   assert.deepEqual(transitionSounds(game, next, null), ['place-upgraded', 'upgrade']);
+});
+
+test('simultaneous exits produce one return cue and repeated snapshots stay silent', () => {
+  const game = createGame('classic');
+  game.board[0] = { owner: 0, upgraded: false };
+  game.board[1] = { owner: 1, upgraded: false };
+  game.board[14] = { owner: 1, upgraded: false };
+  const after = place(game, 7);
+  assert.deepEqual(transitionSounds(game, after, null), ['place', 'push', 'return']);
+  assert.deepEqual(transitionSounds(after, structuredClone(after), null), []);
 });
