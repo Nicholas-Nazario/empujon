@@ -3,6 +3,7 @@ import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
 import { createGame, place, chooseUpgrade, defaultPieceUpgraded, previewMovement, names, type Game, type Mode } from '../game.ts';
 import { renderIcon } from './icons.ts';
+import { tripleSelectionAt } from './triple-selection.ts';
 import { renderMovement } from './components/movement.ts';
 import { highlightChoice } from './components/board.ts';
 import { bindGameEvents, type GameActions } from './events.ts';
@@ -34,6 +35,48 @@ export function startApp(root: HTMLElement): void {
 
   let motion: { after: Game; stage: Game; started: boolean } | null = null;
   let motionTimer: ReturnType<typeof setTimeout> | undefined;
+  let selectedTriple: number | null = null;
+  let choiceKey = '';
+  let indicatedChoice = '';
+  const confirmUpgrade = root.querySelector<HTMLButtonElement>('[data-confirm-upgrade]')!;
+  function choiceLocked(): boolean {
+    return !!motion || Date.now() < upgradeUntil || !canAct() || !!(computer && actingPlayer(game) === 1);
+  }
+  function updateTripleSelection(): void {
+    const choice = game.choices[0];
+    const choosing = !!choice && !choiceLocked();
+    const ready = choosing && selectedTriple !== null;
+    const newlyReady = ready && confirmUpgrade.disabled;
+    layout.boardHeading.classList.toggle('choosing-upgrade', choosing);
+    confirmUpgrade.hidden = !choosing;
+    confirmUpgrade.disabled = !choosing || selectedTriple === null;
+    layout.moveCount.hidden = choosing;
+    if (!choosing) return;
+    layout.turnTitle.textContent = `${names[choice.owner]} · ${ready ? 'Ready to upgrade' : choice.kind === 'line' ? 'Choose a triple' : 'Choose a piece'}`;
+    const cells = selectedTriple === null ? [] : choice.options[selectedTriple];
+    confirmUpgrade.innerHTML = `${renderIcon('upgrade')}<span>${ready ? 'Confirm upgrade' : choice.kind === 'line' ? 'Select a triple on the board' : 'Select a piece on the board'}</span>`;
+    if (newlyReady && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      confirmUpgrade.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.025)' }, { transform: 'scale(1)' }], { duration: 450, easing: 'ease-in-out' });
+    }
+    const description = root.querySelector<HTMLElement>('#movement-description')!;
+    description.textContent = selectedTriple === null
+      ? choice.kind === 'line' ? 'Tap an outlined piece to preview a triple.' : 'Tap a piece to return upgraded.'
+      : choice.kind === 'line'
+        ? `Triple ${selectedTriple + 1}/${choice.options.length} selected. Confirm to upgrade.`
+        : 'Piece selected. Confirm to return it upgraded.';
+    highlightChoice(layout.board, cells);
+    layout.board.querySelectorAll<HTMLButtonElement>('.eligible').forEach(cell => {
+      cell.setAttribute('aria-pressed', String(cells.includes(Number(cell.dataset.cell))));
+    });
+    if (indicatedChoice !== choiceKey) {
+      indicatedChoice = choiceKey;
+      if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        layout.board.querySelectorAll<HTMLElement>('.eligible > .piece').forEach(piece => piece.animate([
+          { transform: 'scale(1)' }, { transform: 'scale(1.08)' }, { transform: 'scale(1)' },
+        ], { duration: 550, easing: 'ease-in-out' }));
+      }
+    }
+  }
   let history: Game[] = [];
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
@@ -81,6 +124,7 @@ export function startApp(root: HTMLElement): void {
     movementPreview.hidden = index === null;
     previewPlace.hidden = !touchPreview || index === null || !movement;
     if (index !== null) previewPlace.textContent = `Place at ${'ABCDEF'[index % 6]}${Math.floor(index / 6) + 1}`;
+    if (game.choices.length) updateTripleSelection();
   }
   movementToggle.addEventListener('click', () => {
     annotationsEnabled = !annotationsEnabled;
@@ -94,7 +138,7 @@ export function startApp(root: HTMLElement): void {
   layout.board.addEventListener('pointerdown', event => { touchPreview = touchPreviewEnabled && event.pointerType === 'touch'; });
   for (const type of ['pointerover', 'focusin']) layout.board.addEventListener(type, event => {
     const cell = event.target instanceof Element ? event.target.closest<HTMLButtonElement>('[data-cell]') : null;
-    if (cell && !cell.disabled) showMovement(Number(cell.dataset.cell));
+    if (cell && !cell.disabled && !game.choices.length) showMovement(Number(cell.dataset.cell));
   });
   layout.board.addEventListener('pointerleave', () => { if (!touchPreview) showMovement(); });
   layout.board.addEventListener('focusout', event => {
@@ -230,6 +274,11 @@ export function startApp(root: HTMLElement): void {
   root.querySelector('#copy-invite')!.addEventListener('click', () => { void copyInvite(true); });
 
   function render(): void {
+    const nextChoiceKey = JSON.stringify([game.moves, game.board, game.choices[0]]);
+    if (nextChoiceKey !== choiceKey) {
+      choiceKey = nextChoiceKey;
+      selectedTriple = null;
+    }
     if (motion && (game.moves !== motion.after.moves || JSON.stringify(game.board) !== JSON.stringify(motion.after.board))) {
       clearTimeout(motionTimer);
       motion = null;
@@ -297,6 +346,7 @@ export function startApp(root: HTMLElement): void {
     }
     if (onlineError) onlineStatus.textContent = onlineError;
     showMovement();
+    updateTripleSelection();
     updateClock();
     if (motion) {
       if (!motion.started) {
@@ -343,6 +393,21 @@ export function startApp(root: HTMLElement): void {
   const actions: GameActions = {
     placePiece(index) {
       if (motion || Date.now() < upgradeUntil) return;
+      if (game.choices[0]) {
+        if (choiceLocked()) return;
+        const choice = game.choices[0];
+        if (choice.kind === 'line') {
+          const selection = tripleSelectionAt(choice, index, selectedTriple);
+          if (selection === null) return;
+          selectedTriple = selection;
+        } else {
+          const option = choice.options.findIndex(cells => cells.includes(index));
+          if (option < 0) return;
+          selectedTriple = option;
+        }
+        updateTripleSelection();
+        return;
+      }
       if (touchPreview && touchSelection !== index) {
         touchSelection = index;
         showMovement(index);
@@ -360,8 +425,11 @@ export function startApp(root: HTMLElement): void {
       selectedUpgraded = null;
       render();
     },
+    confirmTriple() {
+      if (selectedTriple !== null) actions.chooseUpgrade(selectedTriple);
+    },
     chooseUpgrade(option) {
-      if (motion || Date.now() < upgradeUntil) return;
+      if (choiceLocked()) return;
       if (online) { void submit({ type: 'choose', option }); return; }
       if (computer && actingPlayer(game) === 1) return;
       const next = chooseUpgrade(game, option);
@@ -397,10 +465,7 @@ export function startApp(root: HTMLElement): void {
       // Keep focus on the stable sound button while its label changes.
       renderSoundButton(layout.soundButton, soundEnabled);
     },
-    previewChoice(option) {
-      const cells = option === null ? [] : game.choices[0]?.options[option] ?? [];
-      highlightChoice(layout.board, cells);
-    },
+
   };
 
   bindGameEvents(layout, actions);
