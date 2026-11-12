@@ -116,7 +116,10 @@ component text sizes; keep layout dimensions in `src/style.css`. Keep the serif'
 out of body copy and small labels. Preserve generous line height for rules and
 instructions, and check long labels after any typography change.
 
-Use the existing Phosphor icons with consistent footprints.
+Use the existing Phosphor icons with consistent footprints. Music, appearance,
+and How to play share the same bordered square header icon button, including
+size, surface, hover, and keyboard focus treatment. Keep accessible names and
+tooltips for icon-only controls.
 
 Keep the wordmark lettering ausubo brown (warm sand in dark mode), its accent Adoquín blue, and its period
 Terracotta. The accent sits close to the “o”; its current positioning is
