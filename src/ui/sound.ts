@@ -1,6 +1,6 @@
 import type { Game, Player } from '../game.ts';
 
-export type SoundCue = 'place' | 'place-upgraded' | 'push' | 'upgrade' | 'win' | 'lose';
+export type SoundCue = 'place' | 'place-upgraded' | 'push' | 'return' | 'upgrade' | 'win' | 'lose';
 
 function upgradedCount(game: Game): number {
   return [...game.board, ...game.pools.flat()].filter(piece => piece?.upgraded).length;
@@ -33,6 +33,7 @@ export function transitionSounds(before: Game, after: Game, listener: Player | n
       return tr < 0 || tr > 5 || tc < 0 || tc > 5 || !before.board[tr * 6 + tc];
     });
     if (pushed) cues.push('push');
+    if (after.lastMovement?.pushes.some(push => push.to === null)) cues.push('return');
   }
   if (upgradedCount(after) > upgradedCount(before)) cues.push('upgrade');
   if (before.winner === null && after.winner !== null) {
@@ -118,6 +119,11 @@ export function createGameSound() {
           } else if (cue === 'push') {
             slide(start);
             start += 0.21;
+          } else if (cue === 'return') {
+            // A soft descending wooden plunk marks the piece landing in supply.
+            tone(420, 180, start, 0.16, 0.13, 'sine');
+            tone(630, 270, start + 0.025, 0.12, 0.045, 'triangle');
+            start += 0.20;
           } else if (cue === 'upgrade') {
             // A single sparkling bloom, rather than a melodic victory phrase.
             tone(880, 1320, start, 0.18, 0.10);
