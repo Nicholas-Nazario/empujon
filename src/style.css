@@ -107,7 +107,7 @@ main { padding-top: 28px; }
 .play-panel .coordinates, .play-panel .row-coordinates { font-weight: var(--font-weight-semibold); }
 .player-card { border-left: 4px solid color-mix(in srgb, var(--player) 45%, var(--line)); }
 .player-title h3 { color: var(--player); }
-.turn-badge { background: var(--player); color: var(--white); padding: 5px 6px; border-radius: var(--radius-4); }
+.turn-badge { background: var(--player); color: var(--badge-ink); padding: 5px 6px; border-radius: var(--radius-4); }
 @media (max-width: 650px) { .board-heading { padding: 9px 10px; } }
 
 /* Online identity follows this device's seat; green still signals your turn. */
@@ -180,7 +180,7 @@ body {
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: var(--radius-inherit);
+  border-radius: var(--radius-50percent);
   background-image: var(--mineral-grain);
   opacity: var(--piece-grain-opacity);
   mix-blend-mode: soft-light;
@@ -297,4 +297,15 @@ h2 { font-size: var(--font-size-24); }
   .play-panel > .board-actions { margin:0; padding:8px 0 0; gap:0 12px; }
   .play-panel > .board-actions .text-button { min-height:44px; padding:8px 0; }
   .play-panel > .touch-preview-setting { margin-top:0; min-height:44px; }
+}
+
+.header-actions { display: flex; align-items: center; gap: 18px; }
+#theme { display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; padding: 0; color: var(--osj-adoquin-blue); background: var(--osj-stucco-white); border: 1px solid var(--line); border-radius: var(--radius-6); flex-shrink: 0; }
+#theme:hover { border-color: var(--control-accent); }
+#theme .ui-icon { width: 20px; height: 20px; }
+#theme:focus-visible { outline: 3px solid var(--control-accent); outline-offset: 4px; }
+@media (max-width: 600px) {
+  .header-actions { gap: 8px; }
+  .topbar .text-button { font-size: var(--font-size-10); gap: 4px; }
+
 }
