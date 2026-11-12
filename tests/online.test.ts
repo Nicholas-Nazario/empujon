@@ -3,6 +3,8 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { beginnerAction } from '../src/ai.ts';
+import { actingPlayer } from '../src/actions.ts';
 import { Sessions, SESSION_LIFETIME } from '../server/sessions.ts';
 
 test('invite assigns opposite seats, reconnects, and enforces turns and revisions', () => {
@@ -62,4 +64,56 @@ test('SQLite restores seats, board, deadline, and original expiry after restart'
     assert.equal(seat.expiresAt, host.expiresAt);
     restored.db.close();
   } finally { rmSync(dir, { recursive: true }); }
+});
+
+test('completed online games retain every position through reconnect and restart', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'empujon-review-'));
+  try {
+    const path = join(dir, 'games.sqlite');
+    const sessions = new Sessions(() => 1000, path);
+    const host = sessions.create('upgrade', 0);
+    const friend = sessions.join(host.code);
+    const tokens = host.player === 0 ? [host.token!, friend.token!] : [friend.token!, host.token!];
+    let state = sessions.view(sessions.get(host.code));
+    const expected = [structuredClone(state.game)];
+    let seed = 1;
+    const random = Math.random;
+    Math.random = () => { seed = (Math.imul(seed, 1664525) + 1013904223) >>> 0; return seed / 2 ** 32; };
+    let choices = 0;
+    try {
+      while (state.game.winner === null && expected.length < 200) {
+        assert.equal(state.history, undefined, 'Do not resend the timeline during play');
+        const action = beginnerAction(state.game)!;
+        if (action.type === 'choose') choices++;
+        state = sessions.move(host.code, tokens[actingPlayer(state.game)!], state.revision, action);
+        expected.push(structuredClone(state.game));
+      }
+    } finally { Math.random = random; }
+    assert.notEqual(state.game.winner, null);
+    assert.ok(choices > 0);
+    assert.deepEqual(state.history, expected);
+    sessions.db.close();
+    const restored = new Sessions(() => 2000, path);
+    assert.deepEqual(restored.join(host.code, host.token!).history, expected);
+    assert.throws(() => restored.move(host.code, host.token!, state.revision, { type: 'place', index: 0 }));
+    assert.deepEqual(restored.view(restored.get(host.code)).history, expected);
+    restored.db.close();
+  } finally { rmSync(dir, { recursive: true }); }
+});
+
+test('timeout adds a final result position without changing previous boards', () => {
+  let now = 1000;
+  const sessions = new Sessions(() => now);
+  const host = sessions.create('classic', 30);
+  const friend = sessions.join(host.code);
+  const first = host.player === 0 ? host : friend;
+  const state = sessions.move(host.code, first.token!, 1, { type: 'place', index: 0 });
+  now += 30000;
+  const ended = sessions.view(sessions.get(host.code));
+  assert.equal(ended.history!.length, 3);
+  assert.deepEqual(ended.history![1], state.game);
+  assert.equal(ended.history![1].winner, null);
+  assert.equal(ended.history![2].reason, 'timeout');
+  assert.deepEqual(ended.history![1].board, ended.game.board);
+  sessions.db.close();
 });

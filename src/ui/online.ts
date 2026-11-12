@@ -1,7 +1,7 @@
 import type { Game, Player } from '../game.ts';
 import type { Action } from '../actions.ts';
 
-export type OnlineState = { code: string; game: Game; joined: boolean; turnSeconds: number; deadline: number | null; expiresAt: number; revision: number };
+export type OnlineState = { code: string; game: Game; history?: Game[]; joined: boolean; turnSeconds: number; deadline: number | null; expiresAt: number; revision: number };
 export type Seat = { token: string; player: Player };
 
 export async function onlineRequest(path: string, body: unknown): Promise<OnlineState & Seat> {

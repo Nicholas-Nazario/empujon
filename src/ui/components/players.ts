@@ -13,16 +13,16 @@ function renderPiecePicker(baseCount: number, upgradedCount: number, selectedUpg
     </div>`;
 }
 
-function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null): string {
+function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null, reviewing: boolean): string {
   const supply = game.pools[owner];
   const onBoard = game.board.filter(piece => piece?.owner === owner).length;
   const upgradedInSupply = supply.filter(piece => piece.upgraded).length;
   const totalUpgraded = upgradedInSupply + game.board.filter(piece => piece?.owner === owner && piece.upgraded).length;
   const isActive = owner === activePlayer;
   const badge = isActive
-    ? `<span class="turn-badge">${game.winner !== null ? 'WINNER' : 'TO PLAY'}</span>`
+    ? `<span class="turn-badge">${game.winner !== null ? 'WINNER' : reviewing ? 'NEXT' : 'TO PLAY'}</span>`
     : '';
-  const canSelectPiece = !(computer && owner === 1) && game.mode === 'upgrade' && owner === game.turn
+  const canSelectPiece = !reviewing && !(computer && owner === 1) && game.mode === 'upgrade' && owner === game.turn
     && !game.choices.length && game.winner === null;
   const supplyPieces = supply.map(piece => renderPiece(owner, piece.upgraded)).join('');
   const placeholders = Array.from({ length: onBoard }, () => '<span class="empty-piece"></span>').join('');
@@ -43,6 +43,6 @@ function renderPlayer(game: Game, owner: Player, activePlayer: Player, selectedU
     </section>`;
 }
 
-export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null = null): string {
-  return ([0, 1] as const).map(owner => renderPlayer(game, owner, activePlayer, selectedUpgraded, computer)).join('');
+export function renderPlayers(game: Game, activePlayer: Player, selectedUpgraded: boolean, computer: Difficulty | null = null, reviewing = false): string {
+  return ([0, 1] as const).map(owner => renderPlayer(game, owner, activePlayer, selectedUpgraded, computer, reviewing)).join('');
 }

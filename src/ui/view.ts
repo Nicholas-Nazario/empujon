@@ -10,6 +10,7 @@ import { renderPiece } from './components/piece.ts';
 export type ViewState = {
   game: Game;
   locked?: boolean;
+  reviewing?: boolean;
   selectedUpgraded: boolean;
   canUndo: boolean;
   soundEnabled: boolean;
@@ -23,17 +24,10 @@ export function renderGame(layout: Layout, state: ViewState): void {
   const { game, selectedUpgraded } = state;
   const choice = game.choices[0];
   const activePlayer = game.winner ?? choice?.owner ?? game.turn;
-  const playerName = names[activePlayer];
 
-  layout.turnTitle.textContent = game.winner !== null
-    ? `${playerName} wins`
-    : choice ? `${playerName} · choose an upgrade` : `${playerName}'s turn`;
-  layout.boardHeading.className = `board-heading color-${activePlayer}`;
   layout.playPanel.className = `play-panel color-${activePlayer}`;
-  layout.moveCount.textContent = `MOVE ${String(game.moves + (game.winner === null ? 1 : 0)).padStart(2, '0')}`;
   layout.boardMode.textContent = game.mode.toUpperCase();
-  const thinking = !!state.computer && actingPlayer(game) === 1;
-  layout.status.textContent = thinking ? (choice ? `${difficultyNames[state.computer!]} is choosing an upgrade…` : `${difficultyNames[state.computer!]} is choosing a move…`) : game.message;
+  const thinking = !state.reviewing && !!state.computer && actingPlayer(game) === 1;
   layout.opponentNote.textContent = state.computer
     ? `You’re ${names[0]}. ${difficultyNames[state.computer]} plays ${names[1]}.`
     : 'Share a screen. Trade little pushes.';
@@ -60,7 +54,7 @@ export function renderGame(layout: Layout, state: ViewState): void {
     boardMarkup.set(layout.board, boardHtml);
   }
   layout.choices.replaceChildren();
-  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
+  layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer, state.reviewing);
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);
 }

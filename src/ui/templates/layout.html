@@ -18,7 +18,7 @@
       <span class="online-badge"><span data-icon="online"></span> ONLINE GAME</span>
       <span id="online-seat"></span>
     </div>
-    <p id="online-status" role="status" aria-live="polite"></p>
+    <p id="online-status" class="sr-only" role="status" aria-live="polite"></p>
   </section>
   <div class="game-layout">
     <aside class="setup-panel">
@@ -86,15 +86,7 @@
       </details>
     </aside>
     <section class="play-panel" aria-label="Game board">
-      <div class="board-heading">
-        <div>
-          <span class="live-dot"></span>
-          <span id="turn-title"></span>
-        </div>
-        <span class="move-count" id="move-count"></span>
-        <button class="primary-button" data-confirm-upgrade hidden disabled>Upgrade 3</button>
-        <p id="movement-description" class="movement-description" role="status"></p>
-      </div>
+      <!-- board-information -->
       <div class="board-frame">
         <div class="coordinates top-coords" aria-hidden="true">
           <span>A</span>
@@ -120,11 +112,6 @@
           <span id="board-mode">CLASSIC</span>
         </div>
       </div>
-      <div class="movement-controls">
-        <button class="text-button" id="preview-place" hidden>Place here</button>
-      </div>
-      <p id="movement-preview" class="movement-description" role="status" hidden></p>
-      <p class="status" id="status" role="status" aria-live="polite"></p>
       <div id="choices" class="choices"></div>
       <div class="board-actions">
         <button class="text-button" id="undo">

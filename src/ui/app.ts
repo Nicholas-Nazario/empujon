@@ -3,6 +3,7 @@ import { actingPlayer, applyAction, type Action } from '../actions.ts';
 import { onlineRequest, sendMove, type OnlineState, type Seat } from './online.ts';
 import { createGame, place, chooseUpgrade, defaultPieceUpgraded, previewMovement, names, type Game, type Mode } from '../game.ts';
 import { renderIcon } from './icons.ts';
+import { createBoardInformation, type BoardInformationState } from './components/board-information.ts';
 import { tripleSelectionAt } from './triple-selection.ts';
 import { renderMovement } from './components/movement.ts';
 import { highlightChoice } from './components/board.ts';
@@ -17,6 +18,8 @@ import { movementStage, animateMovement, pulseReturnedSupplies } from './motion.
 export function startApp(root: HTMLElement): void {
   const layout = mountLayout(root);
   const sounds = createGameSound();
+  const information = createBoardInformation(layout.boardHeading);
+  let onlineInformation: BoardInformationState['online'] = null;
   const settings = root.querySelector<HTMLDetailsElement>('.game-settings')!;
   const mobileLayout = matchMedia('(max-width: 650px)');
   const playersPanel = root.querySelector<HTMLElement>('.players-panel')!;
@@ -33,37 +36,20 @@ export function startApp(root: HTMLElement): void {
   let upgradeKey = '';
   let upgradeTimer: ReturnType<typeof setTimeout> | undefined;
 
-  let motion: { after: Game; stage: Game; started: boolean } | null = null;
+  let motion: { after: Game; stage: Game; started: boolean; reverse?: boolean } | null = null;
   let motionTimer: ReturnType<typeof setTimeout> | undefined;
   let selectedTriple: number | null = null;
   let choiceKey = '';
   let indicatedChoice = '';
-  const confirmUpgrade = root.querySelector<HTMLButtonElement>('[data-confirm-upgrade]')!;
   function choiceLocked(): boolean {
-    return !!motion || Date.now() < upgradeUntil || !canAct() || !!(computer && actingPlayer(game) === 1);
+    return reviewIndex !== null || game.winner !== null || !!motion || Date.now() < upgradeUntil || !canAct() || !!(computer && actingPlayer(game) === 1);
   }
   function updateTripleSelection(): void {
     const choice = game.choices[0];
-    const choosing = !!choice && !choiceLocked();
-    const ready = choosing && selectedTriple !== null;
-    const newlyReady = ready && confirmUpgrade.disabled;
-    layout.boardHeading.classList.toggle('choosing-upgrade', choosing);
-    confirmUpgrade.hidden = !choosing;
-    confirmUpgrade.disabled = !choosing || selectedTriple === null;
-    layout.moveCount.hidden = choosing;
+    const choosing = reviewIndex === null && game.winner === null && !!choice && !choiceLocked();
+    renderInformation();
     if (!choosing) return;
-    layout.turnTitle.textContent = `${names[choice.owner]} · ${ready ? 'Ready to upgrade' : choice.kind === 'line' ? 'Choose a triple' : 'Choose a piece'}`;
     const cells = selectedTriple === null ? [] : choice.options[selectedTriple];
-    confirmUpgrade.innerHTML = `${renderIcon('upgrade')}<span>${ready ? 'Confirm upgrade' : choice.kind === 'line' ? 'Select a triple on the board' : 'Select a piece on the board'}</span>`;
-    if (newlyReady && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      confirmUpgrade.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.025)' }, { transform: 'scale(1)' }], { duration: 450, easing: 'ease-in-out' });
-    }
-    const description = root.querySelector<HTMLElement>('#movement-description')!;
-    description.textContent = selectedTriple === null
-      ? choice.kind === 'line' ? 'Tap an outlined piece to preview a triple.' : 'Tap a piece to return upgraded.'
-      : choice.kind === 'line'
-        ? `Triple ${selectedTriple + 1}/${choice.options.length} selected. Confirm to upgrade.`
-        : 'Piece selected. Confirm to return it upgraded.';
     highlightChoice(layout.board, cells);
     layout.board.querySelectorAll<HTMLButtonElement>('.eligible').forEach(cell => {
       cell.setAttribute('aria-pressed', String(cells.includes(Number(cell.dataset.cell))));
@@ -78,6 +64,42 @@ export function startApp(root: HTMLElement): void {
     }
   }
   let history: Game[] = [];
+  let timeline: Game[] = [game];
+  let reviewIndex: number | null = null;
+  const review = root.querySelector<HTMLElement>('#game-review')!;
+  const reviewButtons = Array.from(review.querySelectorAll<HTMLButtonElement>('[data-review]'));
+  function viewedGame(): Game { return reviewIndex === null ? game : timeline[reviewIndex]; }
+  function renderInformation(): void {
+    const displayed = viewedGame();
+    information.render({
+      game: displayed, computer,
+      review: reviewIndex === null ? null : { index: reviewIndex, total: timeline.length },
+      upgrade: reviewIndex === null && game.winner === null && game.choices.length && !choiceLocked() ? { selected: selectedTriple } : null,
+      preview: previewIndex === null || game.winner !== null ? null : previewMovement(game, previewIndex, selectedUpgraded ?? defaultPieceUpgraded(game)),
+      touchPreview, online: onlineInformation,
+    });
+  }
+  for (const button of reviewButtons) button.addEventListener('click', () => {
+    if (reviewIndex === null || game.winner === null || button.disabled) return;
+    const index = reviewIndex ?? timeline.length - 1;
+    reviewIndex = button.dataset.review === 'first' ? 0 : button.dataset.review === 'final' ? timeline.length - 1
+      : index + (button.dataset.review === 'previous' ? -1 : 1);
+    clearTimeout(upgradeTimer);
+    clearTimeout(motionTimer);
+    motion = null;
+    layout.board.getAnimations({ subtree: true }).forEach(animation => animation.cancel());
+    if (['next', 'previous'].includes(button.dataset.review!) && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      const reverse = button.dataset.review === 'previous';
+      const before = reverse ? viewedGame() : timeline[index];
+      const after = reverse ? timeline[index] : viewedGame();
+      const stage = movementStage(before, after);
+      if (stage) motion = { after, stage, started: false, reverse };
+    }
+    modals.cancelResult();
+    resultShown = true;
+    pendingComputer = computer;
+    render();
+  });
   let selectedUpgraded: boolean | null = null;
   let soundEnabled = false;
   let computer: Difficulty | null = null;
@@ -107,24 +129,18 @@ export function startApp(root: HTMLElement): void {
   });
   let touchSelection: number | null = null;
   const movementOverlay = root.querySelector<HTMLElement>('#movement-overlay')!;
-  const movementDescription = root.querySelector<HTMLElement>('#movement-description')!;
-  const movementPreview = root.querySelector<HTMLElement>('#movement-preview')!;
   const movementToggle = root.querySelector<HTMLButtonElement>('#movement-toggle')!;
   const previewPlace = root.querySelector<HTMLButtonElement>('#preview-place')!;
   function showMovement(index: number | null = null): void {
+    const displayed = viewedGame();
+    if (game.winner !== null) index = null;
     previewIndex = index;
     if (index === null) touchSelection = null;
-    const movement = index === null ? game.lastMovement ?? null
+    const movement = index === null ? displayed.lastMovement ?? null
       : previewMovement(game, index, selectedUpgraded ?? defaultPieceUpgraded(game));
     const rendered = renderMovement(movement, index !== null);
     movementOverlay.innerHTML = annotationsEnabled ? rendered.svg : '';
-    movementDescription.textContent = game.lastMovement
-      ? renderMovement(game.lastMovement, false).description : 'Last move: no pieces placed yet.';
-    movementPreview.textContent = index === null ? '' : rendered.description;
-    movementPreview.hidden = index === null;
-    previewPlace.hidden = !touchPreview || index === null || !movement;
-    if (index !== null) previewPlace.textContent = `Place at ${'ABCDEF'[index % 6]}${Math.floor(index / 6) + 1}`;
-    if (game.choices.length) updateTripleSelection();
+    updateTripleSelection();
   }
   movementToggle.addEventListener('click', () => {
     annotationsEnabled = !annotationsEnabled;
@@ -173,6 +189,7 @@ export function startApp(root: HTMLElement): void {
         const next = applyAction(game, action);
         playTransition(game, next);
         game = next;
+        timeline.push(game);
         render();
       };
       computerWorker.onmessage = (event: MessageEvent<Action | null>) => finishComputer(event.data);
@@ -208,12 +225,24 @@ export function startApp(root: HTMLElement): void {
     clock.textContent = `Session expires in ${remaining} min` + (online.deadline ? ` · Turn: ${Math.max(0, Math.ceil((online.deadline - Date.now()) / 1000))}s` : '');
   }
   setInterval(updateClock, 1000);
-  function accept(state: OnlineState) { if (online && state.revision < online.revision) return; onlineError = ''; if (online && state.revision > online.revision) playTransition(game, state.game); online = state; game = state.game; selectedUpgraded = null; render(); }
-  function error(error: unknown) { onlineError = error instanceof Error ? error.message : 'Unable to connect.'; onlineStatus.textContent = onlineError; }
+  function accept(state: OnlineState) {
+    if (online && state.revision < online.revision) return;
+    onlineError = '';
+    if (online && state.revision > online.revision) playTransition(game, state.game);
+    online = state;
+    game = state.game;
+    if (state.history) timeline = state.history;
+    else if (game.winner !== null) timeline = [game];
+    selectedUpgraded = null;
+    render();
+  }
+  function error(error: unknown) { onlineError = error instanceof Error ? error.message : 'Unable to connect.'; onlineStatus.textContent = onlineError; if (onlineInformation) onlineInformation.status = onlineError; renderInformation(); }
   function connect(state: OnlineState & Seat) {
     cancelComputer();
     computer = null;
     pendingComputer = null;
+    reviewIndex = null;
+    timeline = [state.game];
     seat = { token: state.token, player: state.player };
     localStorage.setItem(`empujon:${state.code}`, JSON.stringify(seat));
     window.history.replaceState(null, '', `?game=${state.code}`);
@@ -222,8 +251,8 @@ export function startApp(root: HTMLElement): void {
     accept(state);
     stream = new EventSource(`/api/games/${state.code}/events?token=${encodeURIComponent(seat.token)}`);
     stream.onmessage = event => { connected = true; accept(JSON.parse(event.data)); };
-    stream.onerror = () => { connected = false; render(); onlineStatus.textContent = 'Connection interrupted. Reconnecting…'; };
-    stream.addEventListener('expired', () => { connected = false; stream?.close(); render(); onlineStatus.textContent = 'This game has expired. Start a new game to play again.'; });
+    stream.onerror = () => { connected = false; onlineError = 'Connection interrupted. Reconnecting…'; render(); };
+    stream.addEventListener('expired', () => { connected = false; stream?.close(); onlineError = 'This game has expired. Start a new game to play again.'; render(); });
   }
   async function submit(action: Action) {
     if (!online || !seat || !canAct()) return;
@@ -274,6 +303,27 @@ export function startApp(root: HTMLElement): void {
   root.querySelector('#copy-invite')!.addEventListener('click', () => { void copyInvite(true); });
 
   function render(): void {
+    root.classList.toggle('is-reviewing', reviewIndex !== null);
+    layout.undoButton.hidden = game.winner !== null;
+    touchPreviewSetting.hidden = game.winner !== null;
+    if (reviewIndex !== null) {
+      const displayed = motion?.stage ?? viewedGame();
+      layout.board.classList.toggle('is-moving', !!motion);
+      renderGame(layout, { game: displayed, reviewing: true, locked: true, selectedUpgraded: defaultPieceUpgraded(displayed), canUndo: false, soundEnabled, computer });
+      showMovement();
+      if (motion && !motion.started) {
+        motion.started = true;
+        const reverse = motion.reverse ?? false;
+        const duration = animateMovement(layout.board, motion.after, reverse);
+        const completed = motion.after;
+        motionTimer = setTimeout(() => {
+          motion = null;
+          render();
+          pulseReturnedSupplies(layout.players, completed, reverse);
+        }, duration);
+      }
+      return;
+    }
     const nextChoiceKey = JSON.stringify([game.moves, game.board, game.choices[0]]);
     if (nextChoiceKey !== choiceKey) {
       choiceKey = nextChoiceKey;
@@ -300,14 +350,15 @@ export function startApp(root: HTMLElement): void {
       selectedUpgraded = null;
     }
     layout.board.classList.toggle('is-moving', !!motion);
-    renderGame(layout, { game: displayGame, locked: !!motion || returning.length > 0, selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && history.length > 0, soundEnabled, computer });
+    renderGame(layout, { game: displayGame, locked: !!motion || returning.length > 0 || !canAct(), selectedUpgraded: selectedUpgraded ?? defaultPieceUpgraded(game), canUndo: !online && game.winner === null && history.length > 0, soundEnabled, computer });
     returning.forEach(({ index }, order) => {
       const cell = layout.board.querySelector<HTMLElement>(`[data-cell="${index}"]`);
       cell?.classList.add('upgrading');
       cell?.style.setProperty('--win-order', String(order));
     });
-    if (motion || returning.length) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
+    if (motion || returning.length || !canAct()) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
     root.querySelector('#settings-summary')!.textContent = `${game.mode === 'classic' ? 'Classic' : 'Upgrade'} · ${online ? 'Online' : computer ? `${computer[0].toUpperCase()}${computer.slice(1)} CPU` : 'Pass & play'}`;
+    if (!online) onlineInformation = null;
     hostButton.disabled = !!online;
     turnLimit.disabled = !!online;
     leaveButton.hidden = !online;
@@ -337,16 +388,12 @@ export function startApp(root: HTMLElement): void {
         : mine ? (game.choices.length ? 'Your turn — choose an upgrade.' : 'Your turn — make your move.')
         : (game.choices.length ? 'Waiting for your opponent to choose an upgrade…' : "Waiting for your opponent’s move…");
       onlineStatus.textContent = turnText;
-      layout.turnTitle.textContent = !online.joined ? 'Waiting for opponent' : game.winner !== null ? (game.winner === seat.player ? 'You win' : 'Opponent wins') : mine ? 'Your turn' : 'Opponent’s turn';
-      layout.status.textContent = game.winner !== null ? game.message : turnText;
+      onlineInformation = { title: !online.joined ? 'Waiting for opponent' : game.winner !== null ? (game.winner === seat.player ? 'You win' : 'Opponent wins') : mine ? 'Your turn' : 'Opponent’s turn', status: onlineError || (game.winner !== null ? game.message : turnText), yourTurn: mine };
       banner.classList.toggle('is-your-turn', mine);
-      layout.boardHeading.classList.toggle('your-turn', mine);
       document.title = mine ? 'Your turn · Empujón' : 'Empujón · Online game';
-      if (!mine) for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-choice], [data-piece]')) button.disabled = true;
     }
     if (onlineError) onlineStatus.textContent = onlineError;
     showMovement();
-    updateTripleSelection();
     updateClock();
     if (motion) {
       if (!motion.started) {
@@ -372,7 +419,7 @@ export function startApp(root: HTMLElement): void {
       const player = seat?.player ?? (computer ? 0 : null);
       const heading = player === null ? `Congratulations, ${names[game.winner]}!`
         : game.winner === player ? 'Congratulations! You won!' : 'Better luck next time!';
-      modals.showResult(game.mode, heading, `${game.message} View the board to analyze the final position, or start a new game.`);
+      modals.showResult(game.mode, heading, `${game.message} Review the game to see how it unfolded, or start a new game.`);
     }
   }
 
@@ -385,16 +432,25 @@ export function startApp(root: HTMLElement): void {
     computer = pendingComputer;
     game = createGame(mode);
     history = [];
+    timeline = [game];
+    reviewIndex = null;
     selectedUpgraded = null;
     render();
   }
 
-  const modals = createModals(layout, startNewGame);
+  const modals = createModals(layout, startNewGame, () => {
+    if (game.winner === null) return;
+    reviewIndex = timeline.length - 1;
+    clearTimeout(upgradeTimer);
+    clearTimeout(motionTimer);
+    motion = null;
+    render();
+    reviewButtons.find(button => !button.disabled)?.focus();
+  });
   const actions: GameActions = {
     placePiece(index) {
-      if (motion || Date.now() < upgradeUntil) return;
+      if (game.winner !== null || reviewIndex !== null || choiceLocked()) return;
       if (game.choices[0]) {
-        if (choiceLocked()) return;
         const choice = game.choices[0];
         if (choice.kind === 'line') {
           const selection = tripleSelectionAt(choice, index, selectedTriple);
@@ -422,6 +478,7 @@ export function startApp(root: HTMLElement): void {
       history.push(game);
       playTransition(game, next);
       game = next;
+      timeline.push(game);
       selectedUpgraded = null;
       render();
     },
@@ -429,17 +486,19 @@ export function startApp(root: HTMLElement): void {
       if (selectedTriple !== null) actions.chooseUpgrade(selectedTriple);
     },
     chooseUpgrade(option) {
-      if (choiceLocked()) return;
+      if (game.winner !== null || reviewIndex !== null || choiceLocked()) return;
       if (online) { void submit({ type: 'choose', option }); return; }
       if (computer && actingPlayer(game) === 1) return;
       const next = chooseUpgrade(game, option);
+      if (next === game) return;
       playTransition(game, next);
       game = next;
+      timeline.push(game);
       selectedUpgraded = null;
       render();
     },
     selectPiece(upgraded) {
-      if (motion || !canAct() || (computer && actingPlayer(game) === 1)) return;
+      if (game.winner !== null || reviewIndex !== null || motion || !canAct() || (computer && actingPlayer(game) === 1)) return;
       selectedUpgraded = upgraded;
       render();
     },
@@ -450,10 +509,11 @@ export function startApp(root: HTMLElement): void {
       else modals.confirmNewGame(mode);
     },
     undoMove() {
-      if (online) return;
+      if (online || game.winner !== null) return;
       const previous = history.pop();
       if (!previous) return;
       cancelComputer();
+      timeline = timeline.slice(0, timeline.indexOf(previous) + 1);
       game = previous;
       selectedUpgraded = null;
       render();
@@ -465,7 +525,6 @@ export function startApp(root: HTMLElement): void {
       // Keep focus on the stable sound button while its label changes.
       renderSoundButton(layout.soundButton, soundEnabled);
     },
-
   };
 
   bindGameEvents(layout, actions);
@@ -482,6 +541,8 @@ export function startApp(root: HTMLElement): void {
     for (const button of root.querySelectorAll<HTMLButtonElement>('[data-cell], [data-mode], [data-opponent], #restart, #undo')) button.disabled = true;
     leaveButton.hidden = false;
     onlineStatus.textContent = 'Joining game…';
+    onlineInformation = { title: 'Joining online game', status: 'Joining game…', yourTurn: false };
+    renderInformation();
     let token: string | undefined;
     try { token = JSON.parse(localStorage.getItem(`empujon:${code.toUpperCase()}`) ?? 'null')?.token; } catch { /* Missing saved seat. */ }
     void onlineRequest(`/${encodeURIComponent(code)}/join`, { token }).then(connect).catch(error);
