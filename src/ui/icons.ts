@@ -1,3 +1,5 @@
+import sun from '@phosphor-icons/core/assets/regular/sun.svg?raw';
+import moon from '@phosphor-icons/core/assets/regular/moon.svg?raw';
 import touch from '@phosphor-icons/core/assets/regular/hand-tap.svg?raw';
 import eye from '@phosphor-icons/core/assets/regular/eye.svg?raw';
 import eyeSlash from '@phosphor-icons/core/assets/regular/eye-slash.svg?raw';
@@ -20,7 +22,7 @@ import upgrade from '@phosphor-icons/core/assets/fill/crown-simple-fill.svg?raw'
 // diagonal slash matching its regular 16-unit stroke on the 256-unit grid.
 const mutedMusic = music.replace('</svg>', '<path d="M40 40l176 176" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" /></svg>');
 const touchOff = touch.replace('</svg>', '<path d="M40 40l176 176" fill="none" stroke="currentColor" stroke-width="16" stroke-linecap="round" /></svg>');
-const icons = { touch, 'touch-off': touchOff, eye, 'eye-off': eyeSlash, robot, 'robot-duotone': robotDuotone, 'robot-fill': robotFill, info, invite, classic, island, undo, restart, music, 'music-off': mutedMusic, copy, close, online, upgrade };
+const icons = { sun, moon, touch, 'touch-off': touchOff, eye, 'eye-off': eyeSlash, robot, 'robot-duotone': robotDuotone, 'robot-fill': robotFill, info, invite, classic, island, undo, restart, music, 'music-off': mutedMusic, copy, close, online, upgrade };
 export type IconName = keyof typeof icons;
 
 /** Only explicitly imported SVGs are bundled; labels live on their controls. */

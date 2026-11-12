@@ -4,7 +4,7 @@
 
 Empujón takes its visual cues from Old San Juan: limewashed facades, crisp
 stucco trim, blue-gray adoquines, and matte mineral surfaces. The chosen palette
-is **Seafoam Courtyard**, a single permanent palette, paired with the
+is **Seafoam Courtyard**, one palette with light and dusk appearances, paired with the
 **Fortress & Modernism** typography system.
 
 Let the canvas supply the color, keep cards mostly stucco white, and reserve
@@ -37,14 +37,14 @@ select the canonical player tokens for each seat.
 Change palette values in the token file, not in individual components or this
 document. Its values are authoritative; this document describes their roles.
 The dark slate text token differs intentionally from the bluer Adoquín piece
-color. The browser toolbar color reads `--canvas` at startup rather than keeping
-a separate hexadecimal value in HTML.
+color. The browser toolbar color follows the resolved canvas color on startup and whenever
+the theme changes, without a separate hexadecimal value in HTML.
 
 Display player names are **Terracotta** and **Adoquín**, defined once in
 `src/game.ts` and shared by the interface and CLI. Use those shared names for
 labels, announcements, and online identity.
 
-Keep white surfaces white in their selected and current states. Use borders,
+Keep neutral surfaces neutral in their selected and current states. Use borders,
 small marks, badges, and text to communicate selection and player identity.
 Green remains available for neutral controls, focus, choices, and win states.
 The wordmark's colored punctuation is an intentional branding use of the two
@@ -52,7 +52,7 @@ player colors.
 
 ## Board and pieces
 
-- Keep the A–F / 1–6 coordinate frame stucco white, with readable neutral labels.
+- Keep the A–F / 1–6 coordinate frame neutral stucco, with readable neutral labels.
   Preserve the square six-by-six grid and its alignment with the coordinates.
 - Keep the board cool blue-gray with modest alternating-cell contrast so the
   pieces remain the focus.
@@ -66,8 +66,8 @@ player colors.
   raised rims, conspicuous stripes, or coarse texture.
 - Preserve gold upgrade rings and marks, last-move dots, choice outlines,
   hover previews, and win highlights. Material effects must not obscure them.
-- Movement annotations use short, softly transparent black direction arrows with substantial strokes; off-board
-  pushes keep black arrows and use a × in the pushed piece’s player color and an explicit return-to-supply description.
+- Movement annotations use short, softly transparent dark direction arrows (pale mineral in dark mode) with substantial strokes; off-board
+  pushes keep the same neutral arrows and use a × in the pushed piece’s player color and an explicit return-to-supply description.
   The existing last-move dot identifies the placement; omit destination rings and placement outlines. The eye-icon toggle controls only board arrows and off-board marks.
   Default annotations to off. Keep the last-move description visible inside
   the turn heading and name the player who placed the piece. Place the
@@ -117,7 +117,7 @@ instructions, and check long labels after any typography change.
 
 Use the existing Phosphor icons with consistent footprints.
 
-Keep the wordmark lettering dark brown, its accent Adoquín blue, and its period
+Keep the wordmark lettering ausubo brown (warm sand in dark mode), its accent Adoquín blue, and its period
 Terracotta. The accent sits close to the “o”; its current positioning is
 `top: .03em; left: .12em`, scaling with the wordmark on smaller screens.
 
@@ -139,3 +139,18 @@ On mobile, keep setup inside a collapsed Game settings disclosure with the curre
 
 On mobile, place the player piece trackers below the board and upgrade choices, above sound, annotations, and other board controls.
 
+## Dark mode: courtyard at dusk
+
+The header offers a single light/dark toggle, with a sun or moon showing the
+current appearance. Default to the operating system’s appearance and follow
+system changes until the user toggles it. Save that explicit override locally
+and keep it across reloads and subsequent system changes. Both appearances use
+the same identity tokens, with paired `light-dark()` values in `src/visual-identity.css`.
+
+Dark mode uses deep seafoam for the canvas, warm shaded mineral surfaces for
+cards and the coordinate frame, and cool blue-gray paving for the board.
+Terracotta stays earthy orange-red clay; Adoquín stays blue, never charcoal or
+purple. Their dusk values are lighter to remain legible on dark surfaces. Keep
+the shared player names, gold upgrades, typography, grain, and shallow relief.
+Use warm sand for the wood wordmark and pale mineral ink for movement arrows.
+Selection and turn states retain neutral surfaces with colored borders and marks.
