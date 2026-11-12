@@ -3,7 +3,7 @@ import { renderIcon } from './icons.ts';
 import { actingPlayer } from '../actions.ts';
 import { names, type Game } from '../game.ts';
 import type { Layout } from './layout.ts';
-import { renderBoard, renderUpgradeChoices } from './components/board.ts';
+import { renderBoard } from './components/board.ts';
 import { renderPlayers } from './components/players.ts';
 import { renderPiece } from './components/piece.ts';
 
@@ -59,7 +59,7 @@ export function renderGame(layout: Layout, state: ViewState): void {
     layout.board.innerHTML = boardHtml;
     boardMarkup.set(layout.board, boardHtml);
   }
-  layout.choices.innerHTML = renderUpgradeChoices(game, thinking || state.locked);
+  layout.choices.replaceChildren();
   layout.players.innerHTML = renderPlayers(game, activePlayer, selectedUpgraded, state.computer);
   layout.undoButton.disabled = !state.canUndo;
   renderSoundButton(layout.soundButton, state.soundEnabled);

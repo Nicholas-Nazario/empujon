@@ -20,6 +20,8 @@
   --board-cell: light-dark(#dce3e4, #354b56);
   --board-cell-alternate: light-dark(#cdd8dd, #2c414d);
   --upgrade-gold: light-dark(#f6d696, #f6d696);
+  --upgrade-confirm-background: var(--upgrade-gold);
+  --upgrade-confirm-text: #253532;
   --control-accent: light-dark(#456e65, #9bc7b8);
   --control-selected: light-dark(#596c63, #aac8b6);
 
