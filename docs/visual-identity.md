@@ -70,7 +70,7 @@ player colors.
   pushes keep the same neutral arrows and use a × in the pushed piece’s player color and an explicit return-to-supply description.
   The existing last-move dot identifies the placement; omit destination rings and placement outlines. The eye-icon toggle controls only board arrows and off-board marks.
   Default annotations to off. Keep the last-move description visible inside
-  the turn heading and name the player who placed the piece. Keep annotations, sound effects, and touch preview together in the header preferences menu.
+  the turn heading and name the player who placed the piece. Keep annotations and touch preview in the header preferences menu; put sound effects in the music menu.
   Keep preview text in the information panel above the board. Touch users place with a single tap by default. An optional, saved “Touch preview” icon setting previews on the first tap and confirms with a second tap on the same square or the labeled placement button.
 - Placements settle with a small scale motion; pushed pieces slide together one square after a brief contact beat. Off-board pieces shrink and fade as they leave the grid, followed by one subtle pulse on each receiving supply. A soft descending return sound follows the push sound when sound is enabled. Keep stationary pieces still, pause piece input during movement, and finish slides before upgrade or win pulses. Reduced-motion users see the final positions immediately.
 - Upgrade selection takes over the existing fixed-height turn tracker without shifting the board. Tap eligible pieces to preview a triple; repeat taps on a shared piece cycle through its triples. Highlight all selected pieces together and confirm with a gold “Confirm upgrade” action inside the tracker. Once selected, explicitly instruct the player to confirm; give the action one restrained pulse, respecting reduced motion. Keep all upgrade interactions on the board and tracker, with no option buttons below the board. Pulse eligible pieces once, respecting reduced motion. Single-piece returns use the same interaction.
@@ -194,7 +194,7 @@ connection and turn information belongs in the board information panel.
 
 ## Background music
 
-Music uses a header icon beside the theme toggle and opens a compact, nonmodal popover, dismissible by Escape or an outside tap. Keep it separate from game sounds. All tracks are included by default; persist explicit exclusions, and advance through included songs in order, wrapping at the end. Start
+Music uses a header icon beside the theme toggle and opens a compact, nonmodal popover, dismissible by Escape or an outside tap. Include an independent “Sound effects” toggle with speaker and muted-speaker icons; reserve the note icon for background music. All tracks are included by default; persist explicit exclusions, and advance through included songs in order, wrapping at the end. Start
 paused and require a deliberate Play action; remember track and volume preferences.
 Keep track choices and full composer, license, and provider credits together in
 the music selection screen, with visibly linked attribution in each track’s expandable credits. Use the existing
@@ -206,8 +206,8 @@ header or board. Dismiss the announcement after about four seconds or on pause;
 replace it when another track starts. Reduced motion keeps the icon still and
 shows the same temporary announcement without movement or fading.
 
-Header preferences use a gear icon and a nonmodal popover with labeled sound,
-annotations, and touch-preview toggles. Put Undo in the information
+Header preferences use a gear icon and a nonmodal popover with labeled
+annotations and touch-preview toggles. Put Undo in the information
 panel’s heading alongside the move counter; start a fresh game by choosing
 Classic or Upgrade, including the currently selected mode. Keep the confirmation
 for games already in progress; keep contextual upgrade, placement,

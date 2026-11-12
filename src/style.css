@@ -422,3 +422,5 @@ h2 { font-size: var(--font-size-24); }
 @media(any-pointer:coarse), (hover:none) {
   .preference-help { position:static; width:auto; height:auto; margin:8px 4px 0; overflow:visible; clip-path:none; }
 }
+
+.music-effects { margin-bottom:20px; padding-bottom:16px; border-bottom:1px solid var(--line); }
